@@ -4,6 +4,9 @@ Analyze historical pipeline health reports and produce structured
 health trend assessments.
 """
 
+from pipeline_health_trend_analyzer.analyzer import (
+    PipelineHealthTrendAnalyzer,
+)
 from pipeline_health_trend_analyzer.contract import (
     MetricTrend,
     TrendDirection,
@@ -40,6 +43,7 @@ __all__ = [
     "LoadedHealthReport",
     "MetricDefinition",
     "MetricTrend",
+    "PipelineHealthTrendAnalyzer",
     "TrendDirection",
     "TrendEngine",
     "TrendReport",

@@ -75,7 +75,7 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M4 — Trend Engine**
+Current milestone: **M5 — Pipeline Health Trend Analyzer**
 
 Version: `0.1.0`
 
@@ -152,3 +152,27 @@ Metric direction is interpreted according to metric semantics:
 A single historical sample produces `insufficient_data`.
 Constant values or movements within the configured tolerance produce
 `stable`.
+
+## Pipeline health trend analyzer
+
+`PipelineHealthTrendAnalyzer` combines report loading and statistical
+trend calculation into a complete analysis workflow.
+
+It supports:
+
+- Analysis from normalized `TrendSample` objects
+- Analysis from loaded health reports
+- Analysis from explicit JSON report paths
+- Analysis from directories of historical reports
+- Automatic chronological normalization
+- Aggregate overall trend direction
+- Complete `TrendSummary` generation
+- Complete `TrendReport` generation
+- Automatic run identifier generation
+- Report and analyzer version metadata
+- Source report path and version preservation
+
+Overall direction is selected by comparing the number of improving and
+degrading metrics. Equal counts are classified as stable. When all
+metrics contain only one sample, the overall result is
+`insufficient_data`.
