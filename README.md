@@ -75,7 +75,7 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M6 — Trend Summary**
+Current milestone: **M7 — CLI**
 
 Version: `0.1.0`
 
@@ -200,3 +200,53 @@ The summary builder supports:
 
 The overview is suitable for dashboards, notifications, release
 artifacts, and later observability APIs.
+
+## Command-line interface
+
+Analyze a directory of historical health reports:
+
+```bash
+pipeline-health-trend analyze examples/health_reports
+```
+
+Display detailed metric statistics:
+
+```bash
+pipeline-health-trend analyze   examples/health_reports   --show-metrics
+```
+
+Print only the overall direction:
+
+```bash
+pipeline-health-trend analyze   examples/health_reports   --quiet
+```
+
+Use a custom report pattern:
+
+```bash
+pipeline-health-trend analyze   examples/health_reports   --pattern 'health_report_*.json'
+```
+
+Discover reports recursively:
+
+```bash
+pipeline-health-trend analyze   reports   --recursive
+```
+
+Use a trend threshold for scripts or CI:
+
+```bash
+pipeline-health-trend analyze   examples/health_reports   --fail-on degrading
+```
+
+Supported failure thresholds:
+
+- `stable`
+- `degrading`
+- `insufficient_data`
+
+Exit codes:
+
+- `0`: analysis completed and threshold was not reached
+- `1`: input or trend analysis error
+- `2`: configured trend threshold was reached

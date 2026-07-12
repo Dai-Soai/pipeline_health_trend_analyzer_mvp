@@ -57,3 +57,12 @@ All notable changes to this project will be documented in this file.
 - Highlighted metric selection and ordering.
 - Direction-specific operational recommendations.
 - Trend overview integration with generated reports.
+- Installed `pipeline-health-trend` console command.
+- Trend analysis CLI command.
+- Human-readable trend report output.
+- Detailed metric trend output.
+- Quiet direction-only output.
+- Custom health report glob patterns.
+- Recursive health report discovery.
+- Configurable trend failure threshold.
+- Automation-friendly CLI exit codes.

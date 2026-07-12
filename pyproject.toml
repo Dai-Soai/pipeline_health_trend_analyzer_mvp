@@ -35,6 +35,10 @@ classifiers = [
 ]
 dependencies = []
 
+
+[project.scripts]
+pipeline-health-trend = "pipeline_health_trend_analyzer.cli:main"
+
 [project.optional-dependencies]
 dev = [
   "build>=1.2",
