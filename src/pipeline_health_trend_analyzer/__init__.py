@@ -24,6 +24,15 @@ from pipeline_health_trend_analyzer.health_loader import (
     HealthReportValidationError,
     LoadedHealthReport,
 )
+from pipeline_health_trend_analyzer.report_io import (
+    TrendReportContractError,
+    TrendReportFileNotFoundError,
+    TrendReportInspection,
+    TrendReportIOError,
+    TrendReportJSONError,
+    TrendReportSerializer,
+    TrendReportStore,
+)
 from pipeline_health_trend_analyzer.summary import (
     TrendSummaryBuilder,
 )
@@ -52,6 +61,13 @@ __all__ = [
     "TrendOverview",
     "TrendEngine",
     "TrendReport",
+    "TrendReportStore",
+    "TrendReportSerializer",
+    "TrendReportJSONError",
+    "TrendReportIOError",
+    "TrendReportInspection",
+    "TrendReportFileNotFoundError",
+    "TrendReportContractError",
     "TrendSample",
     "TrendSummary",
     "TrendSummaryBuilder",

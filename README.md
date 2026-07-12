@@ -75,7 +75,7 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M7 — CLI**
+Current milestone: **M8 — JSON Trend Report**
 
 Version: `0.1.0`
 
@@ -250,3 +250,36 @@ Exit codes:
 - `0`: analysis completed and threshold was not reached
 - `1`: input or trend analysis error
 - `2`: configured trend threshold was reached
+
+## JSON trend report artifacts
+
+Generate a JSON trend report:
+
+```bash
+pipeline-health-trend analyze   examples/health_reports   --output reports/trend_report.json
+```
+
+Validate an existing trend report:
+
+```bash
+pipeline-health-trend validate   reports/trend_report.json
+```
+
+Inspect report metadata and trend summary:
+
+```bash
+pipeline-health-trend inspect   reports/trend_report.json
+```
+
+JSON trend report support includes:
+
+- Contract-aware serialization
+- Contract-aware deserialization
+- Atomic artifact writing
+- Automatic parent directory creation
+- JSON syntax validation
+- Trend report contract validation
+- Concise report inspection
+- CLI artifact generation
+- CLI validation
+- CLI inspection

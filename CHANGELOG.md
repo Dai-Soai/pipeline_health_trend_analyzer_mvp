@@ -66,3 +66,12 @@ All notable changes to this project will be documented in this file.
 - Recursive health report discovery.
 - Configurable trend failure threshold.
 - Automation-friendly CLI exit codes.
+- JSON trend report serializer.
+- JSON trend report deserializer.
+- Atomic trend report artifact writer.
+- Trend report artifact reader.
+- Trend report validation API.
+- Trend report inspection contract.
+- CLI `--output` report generation.
+- CLI `validate` command.
+- CLI `inspect` command.

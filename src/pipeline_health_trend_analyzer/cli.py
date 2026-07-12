@@ -17,6 +17,11 @@ from pipeline_health_trend_analyzer.contract import (
 from pipeline_health_trend_analyzer.health_loader import (
     HealthReportLoadError,
 )
+from pipeline_health_trend_analyzer.report_io import (
+    TrendReportIOError,
+    TrendReportInspection,
+    TrendReportStore,
+)
 
 
 EXIT_SUCCESS = 0
@@ -61,7 +66,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     analyze_parser.add_argument(
         "health_reports",
-        help="Directory containing Utility #27 health report JSON files.",
+        help=(
+            "Directory containing Utility #27 "
+            "health report JSON files."
+        ),
     )
 
     analyze_parser.add_argument(
@@ -80,9 +88,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     analyze_parser.add_argument(
+        "--output",
+        help=(
+            "Write the generated JSON trend report "
+            "to this path."
+        ),
+    )
+
+    analyze_parser.add_argument(
         "--show-metrics",
         action="store_true",
-        help="Print detailed statistical information for each metric.",
+        help=(
+            "Print detailed statistical information "
+            "for each metric."
+        ),
     )
 
     analyze_parser.add_argument(
@@ -99,9 +118,29 @@ def build_parser() -> argparse.ArgumentParser:
             TrendDirection.INSUFFICIENT_DATA.value,
         ),
         help=(
-            "Return exit code 2 when the observed trend reaches or "
-            "exceeds this operational threshold."
+            "Return exit code 2 when the observed trend reaches "
+            "or exceeds this operational threshold."
         ),
+    )
+
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Validate a generated JSON trend report.",
+    )
+
+    validate_parser.add_argument(
+        "trend_report",
+        help="Path to the JSON trend report.",
+    )
+
+    inspect_parser = subparsers.add_parser(
+        "inspect",
+        help="Inspect a generated JSON trend report.",
+    )
+
+    inspect_parser.add_argument(
+        "trend_report",
+        help="Path to the JSON trend report.",
     )
 
     return parser
@@ -183,7 +222,10 @@ def format_report(
                         f"{trend.metric_name}"
                     ),
                     f"   Samples: {trend.sample_count}",
-                    f"   First: {_format_number(trend.first_value)}",
+                    (
+                        "   First: "
+                        f"{_format_number(trend.first_value)}"
+                    ),
                     (
                         "   Current: "
                         f"{_format_number(trend.current_value)}"
@@ -200,12 +242,64 @@ def format_report(
                         "   Maximum: "
                         f"{_format_number(trend.maximum_value)}"
                     ),
-                    f"   Delta: {_format_number(trend.delta)}",
-                    f"   Slope: {_format_number(trend.slope)}",
+                    (
+                        "   Delta: "
+                        f"{_format_number(trend.delta)}"
+                    ),
+                    (
+                        "   Slope: "
+                        f"{_format_number(trend.slope)}"
+                    ),
                 ]
             )
 
     return "\n".join(lines)
+
+
+def format_inspection(
+    inspection: TrendReportInspection,
+) -> str:
+    """Format a trend report inspection result."""
+
+    return "\n".join(
+        [
+            "Trend Report Inspection",
+            "=======================",
+            f"Run ID: {inspection.run_id}",
+            f"Status: {inspection.status}",
+            (
+                "Overall direction: "
+                f"{inspection.overall_direction}"
+            ),
+            f"Samples: {inspection.sample_count}",
+            f"Metrics: {inspection.metric_count}",
+            f"Improving: {inspection.improving_count}",
+            f"Stable: {inspection.stable_count}",
+            f"Degrading: {inspection.degrading_count}",
+            (
+                "Insufficient data: "
+                f"{inspection.insufficient_data_count}"
+            ),
+            f"Report version: {inspection.report_version}",
+            f"Analyzer version: {inspection.analyzer_version}",
+            f"Generated at: {inspection.generated_at}",
+            f"Headline: {inspection.headline or 'none'}",
+            (
+                "Dominant direction: "
+                f"{inspection.dominant_direction or 'none'}"
+            ),
+            (
+                "Highlighted metrics: "
+                + (
+                    ", ".join(
+                        inspection.highlighted_metrics
+                    )
+                    if inspection.highlighted_metrics
+                    else "none"
+                )
+            ),
+        ]
+    )
 
 
 def _format_number(value: float) -> str:
@@ -237,7 +331,16 @@ def run_analyze(args: argparse.Namespace) -> int:
             pattern=args.pattern,
             recursive=args.recursive,
         )
-    except HealthReportLoadError as exc:
+
+        if args.output is not None:
+            TrendReportStore().write(
+                report,
+                args.output,
+            )
+    except (
+        HealthReportLoadError,
+        TrendReportIOError,
+    ) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_ERROR
     except (TypeError, ValueError) as exc:
@@ -259,12 +362,52 @@ def run_analyze(args: argparse.Namespace) -> int:
             )
         )
 
+        if args.output is not None:
+            print(f"\nReport written: {args.output}")
+
     if args.fail_on is not None:
         threshold = TrendDirection(args.fail_on)
 
         if threshold_reached(direction, threshold):
             return EXIT_TREND_THRESHOLD
 
+    return EXIT_SUCCESS
+
+
+def run_validate(args: argparse.Namespace) -> int:
+    """Execute the validate command."""
+
+    errors = TrendReportStore().validate_file(
+        args.trend_report
+    )
+
+    if errors:
+        print(
+            "Trend report is invalid.",
+            file=sys.stderr,
+        )
+
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+
+        return EXIT_ERROR
+
+    print("Trend report is valid.")
+    return EXIT_SUCCESS
+
+
+def run_inspect(args: argparse.Namespace) -> int:
+    """Execute the inspect command."""
+
+    try:
+        inspection = TrendReportStore().inspect(
+            args.trend_report
+        )
+    except TrendReportIOError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_ERROR
+
+    print(format_inspection(inspection))
     return EXIT_SUCCESS
 
 
@@ -276,6 +419,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.command == "analyze":
         return run_analyze(args)
+
+    if args.command == "validate":
+        return run_validate(args)
+
+    if args.command == "inspect":
+        return run_inspect(args)
 
     parser.error(f"unsupported command: {args.command}")
     return EXIT_ERROR

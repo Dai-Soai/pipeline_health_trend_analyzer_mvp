@@ -223,3 +223,103 @@ def test_main_reports_empty_directory(
     assert exit_code == EXIT_ERROR
     assert captured.out == ""
     assert "No health reports matched" in captured.err
+
+
+def test_main_analyze_writes_json_report(
+    capsys,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "trend-report.json"
+
+    exit_code = main(
+        [
+            "analyze",
+            str(EXAMPLE_DIRECTORY),
+            "--output",
+            str(output_path),
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == EXIT_SUCCESS
+    assert output_path.exists()
+    assert "Report written:" in captured.out
+
+
+def test_main_validates_trend_report(
+    capsys,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "trend-report.json"
+
+    assert (
+        main(
+            [
+                "analyze",
+                str(EXAMPLE_DIRECTORY),
+                "--output",
+                str(output_path),
+                "--quiet",
+            ]
+        )
+        == EXIT_SUCCESS
+    )
+
+    capsys.readouterr()
+
+    exit_code = main(
+        [
+            "validate",
+            str(output_path),
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == EXIT_SUCCESS
+    assert (
+        captured.out.strip()
+        == "Trend report is valid."
+    )
+    assert captured.err == ""
+
+
+def test_main_inspects_trend_report(
+    capsys,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "trend-report.json"
+
+    assert (
+        main(
+            [
+                "analyze",
+                str(EXAMPLE_DIRECTORY),
+                "--output",
+                str(output_path),
+                "--quiet",
+            ]
+        )
+        == EXIT_SUCCESS
+    )
+
+    capsys.readouterr()
+
+    exit_code = main(
+        [
+            "inspect",
+            str(output_path),
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == EXIT_SUCCESS
+    assert "Trend Report Inspection" in captured.out
+    assert (
+        "Overall direction: improving"
+        in captured.out
+    )
+    assert "Samples: 3" in captured.out
+    assert "Metrics: 4" in captured.out
