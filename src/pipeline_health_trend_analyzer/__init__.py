@@ -10,6 +10,7 @@ from pipeline_health_trend_analyzer.analyzer import (
 from pipeline_health_trend_analyzer.contract import (
     MetricTrend,
     TrendDirection,
+    TrendOverview,
     TrendReport,
     TrendSample,
     TrendSummary,
@@ -22,6 +23,9 @@ from pipeline_health_trend_analyzer.health_loader import (
     HealthReportLoader,
     HealthReportValidationError,
     LoadedHealthReport,
+)
+from pipeline_health_trend_analyzer.summary import (
+    TrendSummaryBuilder,
 )
 from pipeline_health_trend_analyzer.trend_engine import (
     DEFAULT_METRIC_DEFINITIONS,
@@ -45,10 +49,12 @@ __all__ = [
     "MetricTrend",
     "PipelineHealthTrendAnalyzer",
     "TrendDirection",
+    "TrendOverview",
     "TrendEngine",
     "TrendReport",
     "TrendSample",
     "TrendSummary",
+    "TrendSummaryBuilder",
     "calculate_linear_slope",
     "__version__",
 ]

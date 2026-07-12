@@ -462,6 +462,114 @@ class TrendSummary:
         )
 
 
+
+@dataclass(frozen=True, slots=True)
+class TrendOverview:
+    """Human-readable overview of a pipeline health trend."""
+
+    headline: str
+    message: str
+    dominant_direction: TrendDirection
+    highlighted_metrics: tuple[str, ...]
+    recommendation: str
+
+    def validate(self) -> list[str]:
+        """Return validation errors for this trend overview."""
+
+        errors: list[str] = []
+
+        for name, value in {
+            "headline": self.headline,
+            "message": self.message,
+            "recommendation": self.recommendation,
+        }.items():
+            if not isinstance(value, str):
+                errors.append(
+                    f"trend_overview.{name} must be a string"
+                )
+            elif not value.strip():
+                errors.append(
+                    f"trend_overview.{name} must not be empty"
+                )
+
+        if not isinstance(
+            self.dominant_direction,
+            TrendDirection,
+        ):
+            errors.append(
+                "trend_overview.dominant_direction must be "
+                "a TrendDirection"
+            )
+
+        if not isinstance(self.highlighted_metrics, tuple):
+            errors.append(
+                "trend_overview.highlighted_metrics "
+                "must be a tuple"
+            )
+        else:
+            seen: set[str] = set()
+
+            for index, metric_name in enumerate(
+                self.highlighted_metrics
+            ):
+                if not isinstance(metric_name, str):
+                    errors.append(
+                        "trend_overview.highlighted_metrics"
+                        f"[{index}] must be a string"
+                    )
+                    continue
+
+                if not metric_name.strip():
+                    errors.append(
+                        "trend_overview.highlighted_metrics"
+                        f"[{index}] must not be empty"
+                    )
+
+                if metric_name in seen:
+                    errors.append(
+                        "trend_overview.highlighted_metrics "
+                        "must not contain duplicates"
+                    )
+
+                seen.add(metric_name)
+
+        return errors
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize this trend overview."""
+
+        return {
+            "headline": self.headline,
+            "message": self.message,
+            "dominant_direction": (
+                self.dominant_direction.value
+            ),
+            "highlighted_metrics": list(
+                self.highlighted_metrics
+            ),
+            "recommendation": self.recommendation,
+        }
+
+    @classmethod
+    def from_dict(
+        cls,
+        data: Mapping[str, Any],
+    ) -> "TrendOverview":
+        """Deserialize a trend overview."""
+
+        return cls(
+            headline=data["headline"],
+            message=data["message"],
+            dominant_direction=TrendDirection(
+                data["dominant_direction"]
+            ),
+            highlighted_metrics=tuple(
+                data.get("highlighted_metrics", [])
+            ),
+            recommendation=data["recommendation"],
+        )
+
+
 @dataclass(frozen=True, slots=True)
 class TrendReport:
     """Complete pipeline health trend report."""
@@ -474,6 +582,7 @@ class TrendReport:
     summary: TrendSummary
     samples: tuple[TrendSample, ...]
     metric_trends: tuple[MetricTrend, ...]
+    overview: TrendOverview | None = None
     source_metadata: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> list[str]:
@@ -509,6 +618,17 @@ class TrendReport:
             )
         else:
             errors.extend(self.summary.validate())
+
+        if self.overview is not None:
+            if not isinstance(
+                self.overview,
+                TrendOverview,
+            ):
+                errors.append(
+                    "overview must be a TrendOverview or null"
+                )
+            else:
+                errors.extend(self.overview.validate())
 
         if not isinstance(self.samples, tuple):
             errors.append("samples must be a tuple")
@@ -605,6 +725,11 @@ class TrendReport:
             "generated_at": self.generated_at,
             "status": self.status,
             "summary": self.summary.to_dict(),
+            "overview": (
+                self.overview.to_dict()
+                if self.overview is not None
+                else None
+            ),
             "samples": [
                 sample.to_dict()
                 for sample in self.samples
@@ -630,6 +755,11 @@ class TrendReport:
             generated_at=data["generated_at"],
             status=data["status"],
             summary=TrendSummary.from_dict(data["summary"]),
+            overview=(
+                TrendOverview.from_dict(data["overview"])
+                if data.get("overview") is not None
+                else None
+            ),
             samples=tuple(
                 TrendSample.from_dict(item)
                 for item in data.get("samples", [])
@@ -647,6 +777,7 @@ class TrendReport:
 __all__ = [
     "MetricTrend",
     "TrendDirection",
+    "TrendOverview",
     "TrendReport",
     "TrendSample",
     "TrendSummary",

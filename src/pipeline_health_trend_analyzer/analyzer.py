@@ -19,6 +19,7 @@ from pipeline_health_trend_analyzer.health_loader import (
     LoadedHealthReport,
 )
 from pipeline_health_trend_analyzer.trend_engine import TrendEngine
+from pipeline_health_trend_analyzer.summary import TrendSummaryBuilder
 
 
 DEFAULT_REPORT_VERSION = "1.0"
@@ -33,11 +34,15 @@ class PipelineHealthTrendAnalyzer:
         *,
         loader: HealthReportLoader | None = None,
         trend_engine: TrendEngine | None = None,
+        summary_builder: TrendSummaryBuilder | None = None,
         report_version: str = DEFAULT_REPORT_VERSION,
         analyzer_version: str = DEFAULT_ANALYZER_VERSION,
     ) -> None:
         self._loader = loader or HealthReportLoader()
         self._trend_engine = trend_engine or TrendEngine()
+        self._summary_builder = (
+            summary_builder or TrendSummaryBuilder()
+        )
         self._report_version = report_version
         self._analyzer_version = analyzer_version
 
@@ -183,6 +188,11 @@ class PipelineHealthTrendAnalyzer:
 
         metadata.update(source_metadata or {})
 
+        overview = self._summary_builder.build(
+            summary=summary,
+            metric_trends=metric_trends,
+        )
+
         report = TrendReport(
             report_version=self._report_version,
             analyzer_version=self._analyzer_version,
@@ -190,6 +200,7 @@ class PipelineHealthTrendAnalyzer:
             generated_at=normalized_generated_at,
             status=report_status,
             summary=summary,
+            overview=overview,
             samples=normalized_samples,
             metric_trends=metric_trends,
             source_metadata=metadata,

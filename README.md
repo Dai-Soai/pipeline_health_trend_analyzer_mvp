@@ -75,7 +75,7 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M5 — Pipeline Health Trend Analyzer**
+Current milestone: **M6 — Trend Summary**
 
 Version: `0.1.0`
 
@@ -176,3 +176,27 @@ Overall direction is selected by comparing the number of improving and
 degrading metrics. Equal counts are classified as stable. When all
 metrics contain only one sample, the overall result is
 `insufficient_data`.
+
+## Trend summary
+
+Every generated trend report includes a human-readable `overview`.
+
+The overview contains:
+
+- A concise trend headline
+- A human-readable statistical message
+- The dominant overall direction
+- A limited list of highlighted metrics
+- An operational recommendation
+
+The summary builder supports:
+
+- Improving pipeline trends
+- Stable pipeline trends
+- Degrading pipeline trends
+- Insufficient historical data
+- Direction-aware metric prioritization
+- Delta-based highlighted metric ordering
+
+The overview is suitable for dashboards, notifications, release
+artifacts, and later observability APIs.
