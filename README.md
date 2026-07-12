@@ -75,6 +75,27 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M1 — Bootstrap Project**
+Current milestone: **M2 — Trend Contract**
 
 Version: `0.1.0`
+
+## Trend contract
+
+The core contract includes:
+
+- `TrendDirection`
+- `TrendSample`
+- `MetricTrend`
+- `TrendSummary`
+- `TrendReport`
+
+The contract supports:
+
+- Validation
+- Serialization
+- Deserialization
+- Chronological sample validation
+- Metric statistics validation
+- Trend direction aggregation
+- Report and analyzer version metadata
+- Summary consistency checks
