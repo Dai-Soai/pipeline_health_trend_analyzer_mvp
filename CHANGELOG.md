@@ -32,3 +32,11 @@ All notable changes to this project will be documented in this file.
 - Health score normalization.
 - Health report to trend sample conversion.
 - Example historical health report artifacts.
+- Configurable metric definition contract.
+- Default pipeline health trend metrics.
+- Least-squares linear slope calculation.
+- Metric average, minimum, maximum, and delta calculation.
+- Metric-aware improving and degrading classification.
+- Stable trend classification with configurable tolerance.
+- Insufficient-data classification.
+- Unified trend engine.

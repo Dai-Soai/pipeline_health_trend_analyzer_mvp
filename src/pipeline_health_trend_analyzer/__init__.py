@@ -20,10 +20,17 @@ from pipeline_health_trend_analyzer.health_loader import (
     HealthReportValidationError,
     LoadedHealthReport,
 )
+from pipeline_health_trend_analyzer.trend_engine import (
+    DEFAULT_METRIC_DEFINITIONS,
+    MetricDefinition,
+    TrendEngine,
+    calculate_linear_slope,
+)
 
 __version__ = "0.1.0"
 
 __all__ = [
+    "DEFAULT_METRIC_DEFINITIONS",
     "DuplicateHealthReportError",
     "HealthReportFileNotFoundError",
     "HealthReportJSONError",
@@ -31,10 +38,13 @@ __all__ = [
     "HealthReportLoader",
     "HealthReportValidationError",
     "LoadedHealthReport",
+    "MetricDefinition",
     "MetricTrend",
     "TrendDirection",
+    "TrendEngine",
     "TrendReport",
     "TrendSample",
     "TrendSummary",
+    "calculate_linear_slope",
     "__version__",
 ]

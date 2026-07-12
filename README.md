@@ -75,7 +75,7 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M3 — Health Report Loader**
+Current milestone: **M4 — Trend Engine**
 
 Version: `0.1.0`
 
@@ -118,3 +118,37 @@ It supports:
 - Chronological report ordering
 - Conversion into validated `TrendSample` objects
 - Preservation of source metadata and source paths
+
+## Trend engine
+
+The trend engine calculates statistical movement across chronological
+health samples.
+
+Default metrics:
+
+- `health_score`
+- `warning_count`
+- `critical_count`
+- `total_findings`
+
+Calculated values:
+
+- First value
+- Current value
+- Average value
+- Minimum value
+- Maximum value
+- Delta
+- Least-squares linear slope
+- Trend direction
+
+Metric direction is interpreted according to metric semantics:
+
+- Increasing health score is improving
+- Decreasing warning count is improving
+- Decreasing critical count is improving
+- Decreasing total finding count is improving
+
+A single historical sample produces `insufficient_data`.
+Constant values or movements within the configured tolerance produce
+`stable`.
