@@ -75,7 +75,7 @@ JSON Trend Report
 
 ## Project status
 
-Current milestone: **M2 — Trend Contract**
+Current milestone: **M3 — Health Report Loader**
 
 Version: `0.1.0`
 
@@ -99,3 +99,22 @@ The contract supports:
 - Trend direction aggregation
 - Report and analyzer version metadata
 - Summary consistency checks
+
+## Health report loader
+
+The health report loader consumes JSON artifacts produced by
+Utility #27 — Pipeline Health Analyzer.
+
+It supports:
+
+- Loading one health report
+- Loading multiple health reports
+- Loading a directory of JSON reports
+- Recursive or non-recursive discovery
+- Required metadata validation
+- JSON syntax validation
+- Score normalization to a 0–100 scale
+- Duplicate run identifier detection
+- Chronological report ordering
+- Conversion into validated `TrendSample` objects
+- Preservation of source metadata and source paths

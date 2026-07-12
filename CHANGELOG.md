@@ -23,3 +23,12 @@ All notable changes to this project will be documented in this file.
 - Contract validation.
 - Chronological sample validation.
 - Analyzer version metadata field.
+- Utility #27 health report loader.
+- Loaded health report contract.
+- Health report metadata validation.
+- JSON file and directory loading.
+- Chronological report ordering.
+- Duplicate run identifier detection.
+- Health score normalization.
+- Health report to trend sample conversion.
+- Example historical health report artifacts.

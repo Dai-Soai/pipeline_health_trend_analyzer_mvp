@@ -1,0 +1,30 @@
+{
+  "report_version": "1.0",
+  "analyzer_version": "0.1.0",
+  "run_id": "health-run-003",
+  "generated_at": "2026-07-11T10:00:00Z",
+  "status": "healthy",
+  "score": {
+    "value": 100.0,
+    "maximum": 100.0,
+    "percentage": 100.0
+  },
+  "summary": {
+    "total_findings": 0,
+    "info_count": 0,
+    "warning_count": 0,
+    "critical_count": 0
+  },
+  "overview": {
+    "headline": "Pipeline operating normally",
+    "message": "No warning or critical conditions were detected.",
+    "dominant_severity": null,
+    "issue_codes": [],
+    "recommendation": "Continue normal monitoring."
+  },
+  "findings": [],
+  "source_metadata": {
+    "collector_version": "0.1.0",
+    "metrics_run_id": "metrics-run-003"
+  }
+}

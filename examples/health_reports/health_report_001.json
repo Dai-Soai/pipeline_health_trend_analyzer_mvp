@@ -1,0 +1,33 @@
+{
+  "report_version": "1.0",
+  "analyzer_version": "0.1.0",
+  "run_id": "health-run-001",
+  "generated_at": "2026-07-09T10:00:00Z",
+  "status": "critical",
+  "score": {
+    "value": 50.0,
+    "maximum": 100.0,
+    "percentage": 50.0
+  },
+  "summary": {
+    "total_findings": 5,
+    "info_count": 0,
+    "warning_count": 3,
+    "critical_count": 2
+  },
+  "overview": {
+    "headline": "Pipeline health is critical",
+    "message": "Pipeline health requires immediate investigation.",
+    "dominant_severity": "critical",
+    "issue_codes": [
+      "consumer.enabled",
+      "latency.maximum"
+    ],
+    "recommendation": "Investigate critical findings immediately."
+  },
+  "findings": [],
+  "source_metadata": {
+    "collector_version": "0.1.0",
+    "metrics_run_id": "metrics-run-001"
+  }
+}
