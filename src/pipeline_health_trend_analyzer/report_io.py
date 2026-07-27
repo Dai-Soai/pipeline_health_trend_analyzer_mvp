@@ -69,14 +69,10 @@ class TrendReportInspection:
             "improving_count": self.improving_count,
             "stable_count": self.stable_count,
             "degrading_count": self.degrading_count,
-            "insufficient_data_count": (
-                self.insufficient_data_count
-            ),
+            "insufficient_data_count": (self.insufficient_data_count),
             "headline": self.headline,
             "dominant_direction": self.dominant_direction,
-            "highlighted_metrics": list(
-                self.highlighted_metrics
-            ),
+            "highlighted_metrics": list(self.highlighted_metrics),
         }
 
 
@@ -124,18 +120,13 @@ class TrendReportSerializer:
         """Deserialize a TrendReport from a dictionary."""
 
         if not isinstance(data, Mapping):
-            raise TrendReportContractError(
-                ["trend report root must be a JSON object"]
-            )
+            raise TrendReportContractError(["trend report root must be a JSON object"])
 
         try:
             report = TrendReport.from_dict(data)
         except (KeyError, TypeError, ValueError) as exc:
             raise TrendReportContractError(
-                [
-                    "unable to deserialize trend report: "
-                    f"{exc}"
-                ]
+                [f"unable to deserialize trend report: {exc}"]
             ) from exc
 
         self._validate_report(report)
@@ -164,9 +155,7 @@ class TrendReportStore:
         self,
         serializer: TrendReportSerializer | None = None,
     ) -> None:
-        self._serializer = (
-            serializer or TrendReportSerializer()
-        )
+        self._serializer = serializer or TrendReportSerializer()
 
     def write(
         self,
@@ -183,9 +172,7 @@ class TrendReportStore:
 
         content = self._serializer.dumps(report) + "\n"
 
-        temporary_path = output_path.with_name(
-            f".{output_path.name}.tmp"
-        )
+        temporary_path = output_path.with_name(f".{output_path.name}.tmp")
 
         try:
             temporary_path.write_text(
@@ -204,8 +191,7 @@ class TrendReportStore:
                 pass
 
             raise TrendReportIOError(
-                "Unable to write trend report "
-                f"{output_path}: {exc}"
+                f"Unable to write trend report {output_path}: {exc}"
             ) from exc
 
         return output_path.resolve()
@@ -219,15 +205,10 @@ class TrendReportStore:
         report_path = Path(path).expanduser()
 
         if not report_path.exists():
-            raise TrendReportFileNotFoundError(
-                f"Trend report not found: {report_path}"
-            )
+            raise TrendReportFileNotFoundError(f"Trend report not found: {report_path}")
 
         if not report_path.is_file():
-            raise TrendReportIOError(
-                "Trend report path is not a file: "
-                f"{report_path}"
-            )
+            raise TrendReportIOError(f"Trend report path is not a file: {report_path}")
 
         try:
             content = report_path.read_text(
@@ -235,8 +216,7 @@ class TrendReportStore:
             )
         except OSError as exc:
             raise TrendReportIOError(
-                "Unable to read trend report "
-                f"{report_path}: {exc}"
+                f"Unable to read trend report {report_path}: {exc}"
             ) from exc
 
         return self._serializer.loads(content)
@@ -270,12 +250,8 @@ class TrendReportStore:
 
         if report.overview is not None:
             headline = report.overview.headline
-            dominant_direction = (
-                report.overview.dominant_direction.value
-            )
-            highlighted_metrics = (
-                report.overview.highlighted_metrics
-            )
+            dominant_direction = report.overview.dominant_direction.value
+            highlighted_metrics = report.overview.highlighted_metrics
 
         return TrendReportInspection(
             report_version=report.report_version,
@@ -283,17 +259,13 @@ class TrendReportStore:
             run_id=report.run_id,
             generated_at=report.generated_at,
             status=report.status,
-            overall_direction=(
-                report.summary.overall_direction.value
-            ),
+            overall_direction=(report.summary.overall_direction.value),
             sample_count=report.summary.sample_count,
             metric_count=report.summary.metric_count,
             improving_count=report.summary.improving_count,
             stable_count=report.summary.stable_count,
             degrading_count=report.summary.degrading_count,
-            insufficient_data_count=(
-                report.summary.insufficient_data_count
-            ),
+            insufficient_data_count=(report.summary.insufficient_data_count),
             headline=headline,
             dominant_direction=dominant_direction,
             highlighted_metrics=highlighted_metrics,

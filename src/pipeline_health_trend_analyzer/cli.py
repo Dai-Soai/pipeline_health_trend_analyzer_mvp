@@ -66,19 +66,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     analyze_parser.add_argument(
         "health_reports",
-        help=(
-            "Directory containing Utility #27 "
-            "health report JSON files."
-        ),
+        help=("Directory containing Utility #27 health report JSON files."),
     )
 
     analyze_parser.add_argument(
         "--pattern",
         default="*.json",
-        help=(
-            "Glob pattern used to discover health reports. "
-            "Default: %(default)s"
-        ),
+        help=("Glob pattern used to discover health reports. Default: %(default)s"),
     )
 
     analyze_parser.add_argument(
@@ -89,19 +83,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     analyze_parser.add_argument(
         "--output",
-        help=(
-            "Write the generated JSON trend report "
-            "to this path."
-        ),
+        help=("Write the generated JSON trend report to this path."),
     )
 
     analyze_parser.add_argument(
         "--show-metrics",
         action="store_true",
-        help=(
-            "Print detailed statistical information "
-            "for each metric."
-        ),
+        help=("Print detailed statistical information for each metric."),
     )
 
     analyze_parser.add_argument(
@@ -158,19 +146,13 @@ def format_report(
         "==============================",
         f"Run ID: {report.run_id}",
         f"Status: {report.status}",
-        (
-            "Overall direction: "
-            f"{report.summary.overall_direction.value}"
-        ),
+        (f"Overall direction: {report.summary.overall_direction.value}"),
         f"Samples: {report.summary.sample_count}",
         f"Metrics: {report.summary.metric_count}",
         f"Improving: {report.summary.improving_count}",
         f"Stable: {report.summary.stable_count}",
         f"Degrading: {report.summary.degrading_count}",
-        (
-            "Insufficient data: "
-            f"{report.summary.insufficient_data_count}"
-        ),
+        (f"Insufficient data: {report.summary.insufficient_data_count}"),
         f"Report version: {report.report_version}",
         f"Analyzer version: {report.analyzer_version}",
     ]
@@ -181,24 +163,16 @@ def format_report(
                 "",
                 f"Headline: {report.overview.headline}",
                 f"Message: {report.overview.message}",
-                (
-                    "Dominant direction: "
-                    f"{report.overview.dominant_direction.value}"
-                ),
+                (f"Dominant direction: {report.overview.dominant_direction.value}"),
                 (
                     "Highlighted metrics: "
                     + (
-                        ", ".join(
-                            report.overview.highlighted_metrics
-                        )
+                        ", ".join(report.overview.highlighted_metrics)
                         if report.overview.highlighted_metrics
                         else "none"
                     )
                 ),
-                (
-                    "Recommendation: "
-                    f"{report.overview.recommendation}"
-                ),
+                (f"Recommendation: {report.overview.recommendation}"),
             ]
         )
 
@@ -217,39 +191,15 @@ def format_report(
         ):
             lines.extend(
                 [
-                    (
-                        f"{index}. [{trend.direction.value}] "
-                        f"{trend.metric_name}"
-                    ),
+                    (f"{index}. [{trend.direction.value}] {trend.metric_name}"),
                     f"   Samples: {trend.sample_count}",
-                    (
-                        "   First: "
-                        f"{_format_number(trend.first_value)}"
-                    ),
-                    (
-                        "   Current: "
-                        f"{_format_number(trend.current_value)}"
-                    ),
-                    (
-                        "   Average: "
-                        f"{_format_number(trend.average_value)}"
-                    ),
-                    (
-                        "   Minimum: "
-                        f"{_format_number(trend.minimum_value)}"
-                    ),
-                    (
-                        "   Maximum: "
-                        f"{_format_number(trend.maximum_value)}"
-                    ),
-                    (
-                        "   Delta: "
-                        f"{_format_number(trend.delta)}"
-                    ),
-                    (
-                        "   Slope: "
-                        f"{_format_number(trend.slope)}"
-                    ),
+                    (f"   First: {_format_number(trend.first_value)}"),
+                    (f"   Current: {_format_number(trend.current_value)}"),
+                    (f"   Average: {_format_number(trend.average_value)}"),
+                    (f"   Minimum: {_format_number(trend.minimum_value)}"),
+                    (f"   Maximum: {_format_number(trend.maximum_value)}"),
+                    (f"   Delta: {_format_number(trend.delta)}"),
+                    (f"   Slope: {_format_number(trend.slope)}"),
                 ]
             )
 
@@ -267,33 +217,22 @@ def format_inspection(
             "=======================",
             f"Run ID: {inspection.run_id}",
             f"Status: {inspection.status}",
-            (
-                "Overall direction: "
-                f"{inspection.overall_direction}"
-            ),
+            (f"Overall direction: {inspection.overall_direction}"),
             f"Samples: {inspection.sample_count}",
             f"Metrics: {inspection.metric_count}",
             f"Improving: {inspection.improving_count}",
             f"Stable: {inspection.stable_count}",
             f"Degrading: {inspection.degrading_count}",
-            (
-                "Insufficient data: "
-                f"{inspection.insufficient_data_count}"
-            ),
+            (f"Insufficient data: {inspection.insufficient_data_count}"),
             f"Report version: {inspection.report_version}",
             f"Analyzer version: {inspection.analyzer_version}",
             f"Generated at: {inspection.generated_at}",
             f"Headline: {inspection.headline or 'none'}",
-            (
-                "Dominant direction: "
-                f"{inspection.dominant_direction or 'none'}"
-            ),
+            (f"Dominant direction: {inspection.dominant_direction or 'none'}"),
             (
                 "Highlighted metrics: "
                 + (
-                    ", ".join(
-                        inspection.highlighted_metrics
-                    )
+                    ", ".join(inspection.highlighted_metrics)
                     if inspection.highlighted_metrics
                     else "none"
                 )
@@ -314,10 +253,7 @@ def threshold_reached(
 ) -> bool:
     """Return whether the observed trend reaches a fail threshold."""
 
-    return (
-        _DIRECTION_RANK[observed]
-        >= _DIRECTION_RANK[threshold]
-    )
+    return _DIRECTION_RANK[observed] >= _DIRECTION_RANK[threshold]
 
 
 def run_analyze(args: argparse.Namespace) -> int:
@@ -377,9 +313,7 @@ def run_analyze(args: argparse.Namespace) -> int:
 def run_validate(args: argparse.Namespace) -> int:
     """Execute the validate command."""
 
-    errors = TrendReportStore().validate_file(
-        args.trend_report
-    )
+    errors = TrendReportStore().validate_file(args.trend_report)
 
     if errors:
         print(
@@ -400,9 +334,7 @@ def run_inspect(args: argparse.Namespace) -> int:
     """Execute the inspect command."""
 
     try:
-        inspection = TrendReportStore().inspect(
-            args.trend_report
-        )
+        inspection = TrendReportStore().inspect(args.trend_report)
     except TrendReportIOError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_ERROR

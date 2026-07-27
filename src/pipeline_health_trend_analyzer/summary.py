@@ -27,19 +27,12 @@ class TrendSummaryBuilder:
             max_highlighted_metrics,
             int,
         ):
-            raise TypeError(
-                "max_highlighted_metrics must be an integer"
-            )
+            raise TypeError("max_highlighted_metrics must be an integer")
 
         if max_highlighted_metrics <= 0:
-            raise ValueError(
-                "max_highlighted_metrics must be "
-                "greater than zero"
-            )
+            raise ValueError("max_highlighted_metrics must be greater than zero")
 
-        self._max_highlighted_metrics = (
-            max_highlighted_metrics
-        )
+        self._max_highlighted_metrics = max_highlighted_metrics
 
     @property
     def max_highlighted_metrics(self) -> int:
@@ -56,9 +49,7 @@ class TrendSummaryBuilder:
         """Build a high-level trend overview."""
 
         if not isinstance(summary, TrendSummary):
-            raise TypeError(
-                "summary must be a TrendSummary"
-            )
+            raise TypeError("summary must be a TrendSummary")
 
         summary_errors = summary.validate()
 
@@ -68,26 +59,17 @@ class TrendSummaryBuilder:
         normalized_trends = tuple(metric_trends)
 
         if len(normalized_trends) != summary.metric_count:
-            raise ValueError(
-                "metric_trends length must match "
-                "summary.metric_count"
-            )
+            raise ValueError("metric_trends length must match summary.metric_count")
 
         for index, trend in enumerate(normalized_trends):
             if not isinstance(trend, MetricTrend):
-                raise TypeError(
-                    f"metric_trends[{index}] "
-                    "must be a MetricTrend"
-                )
+                raise TypeError(f"metric_trends[{index}] must be a MetricTrend")
 
             errors = trend.validate()
 
             if errors:
                 raise ValueError(
-                    "; ".join(
-                        f"metric_trends[{index}].{error}"
-                        for error in errors
-                    )
+                    "; ".join(f"metric_trends[{index}].{error}" for error in errors)
                 )
 
         direction = summary.overall_direction
@@ -117,18 +99,10 @@ class TrendSummaryBuilder:
         """Return a concise trend headline."""
 
         headlines = {
-            TrendDirection.IMPROVING: (
-                "Pipeline health is improving"
-            ),
-            TrendDirection.STABLE: (
-                "Pipeline health trend is stable"
-            ),
-            TrendDirection.DEGRADING: (
-                "Pipeline health is degrading"
-            ),
-            TrendDirection.INSUFFICIENT_DATA: (
-                "Insufficient health history"
-            ),
+            TrendDirection.IMPROVING: ("Pipeline health is improving"),
+            TrendDirection.STABLE: ("Pipeline health trend is stable"),
+            TrendDirection.DEGRADING: ("Pipeline health is degrading"),
+            TrendDirection.INSUFFICIENT_DATA: ("Insufficient health history"),
         }
 
         return headlines[direction]
@@ -139,10 +113,7 @@ class TrendSummaryBuilder:
     ) -> str:
         """Return a human-readable statistical summary."""
 
-        if (
-            summary.overall_direction
-            is TrendDirection.INSUFFICIENT_DATA
-        ):
+        if summary.overall_direction is TrendDirection.INSUFFICIENT_DATA:
             return (
                 f"Only {summary.sample_count} historical sample is "
                 "available. At least two samples are required to "
@@ -216,10 +187,7 @@ class TrendSummaryBuilder:
                 highlighted.append(trend.metric_name)
                 seen.add(trend.metric_name)
 
-                if (
-                    len(highlighted)
-                    >= self._max_highlighted_metrics
-                ):
+                if len(highlighted) >= self._max_highlighted_metrics:
                     return tuple(highlighted)
 
         return tuple(highlighted)

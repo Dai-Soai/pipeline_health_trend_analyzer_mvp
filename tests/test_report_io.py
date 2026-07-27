@@ -14,28 +14,20 @@ from pipeline_health_trend_analyzer import (
 
 
 def build_report():
-    return (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            "examples/health_reports",
-            run_id="report-io-test",
-            generated_at="2026-07-12T13:00:00Z",
-        )
+    return PipelineHealthTrendAnalyzer().analyze_directory(
+        "examples/health_reports",
+        run_id="report-io-test",
+        generated_at="2026-07-12T13:00:00Z",
     )
 
 
 def test_serializer_dumps_trend_report() -> None:
-    content = TrendReportSerializer().dumps(
-        build_report()
-    )
+    content = TrendReportSerializer().dumps(build_report())
     data = json.loads(content)
 
     assert data["status"] == "completed"
     assert data["analyzer_version"] == "0.1.0"
-    assert (
-        data["summary"]["overall_direction"]
-        == "improving"
-    )
+    assert data["summary"]["overall_direction"] == "improving"
     assert len(data["metric_trends"]) == 4
 
 
@@ -43,9 +35,7 @@ def test_serializer_round_trip() -> None:
     serializer = TrendReportSerializer()
     report = build_report()
 
-    restored = serializer.loads(
-        serializer.dumps(report)
-    )
+    restored = serializer.loads(serializer.dumps(report))
 
     assert restored == report
     assert restored.validate() == []
@@ -53,23 +43,14 @@ def test_serializer_round_trip() -> None:
 
 def test_serializer_rejects_invalid_json() -> None:
     with pytest.raises(TrendReportJSONError):
-        TrendReportSerializer().loads(
-            "{invalid-json"
-        )
+        TrendReportSerializer().loads("{invalid-json")
 
 
 def test_serializer_rejects_non_object_root() -> None:
-    with pytest.raises(
-        TrendReportContractError
-    ) as exc_info:
-        TrendReportSerializer().loads(
-            '["not", "an", "object"]'
-        )
+    with pytest.raises(TrendReportContractError) as exc_info:
+        TrendReportSerializer().loads('["not", "an", "object"]')
 
-    assert (
-        "trend report root must be a JSON object"
-        in exc_info.value.errors
-    )
+    assert "trend report root must be a JSON object" in exc_info.value.errors
 
 
 def test_store_writes_and_reads_report(
@@ -90,12 +71,7 @@ def test_store_writes_and_reads_report(
 def test_store_creates_parent_directories(
     tmp_path: Path,
 ) -> None:
-    path = (
-        tmp_path
-        / "nested"
-        / "reports"
-        / "trend.json"
-    )
+    path = tmp_path / "nested" / "reports" / "trend.json"
 
     TrendReportStore().write(
         build_report(),
@@ -108,12 +84,8 @@ def test_store_creates_parent_directories(
 def test_store_rejects_missing_file(
     tmp_path: Path,
 ) -> None:
-    with pytest.raises(
-        TrendReportFileNotFoundError
-    ):
-        TrendReportStore().read(
-            tmp_path / "missing.json"
-        )
+    with pytest.raises(TrendReportFileNotFoundError):
+        TrendReportStore().read(tmp_path / "missing.json")
 
 
 def test_validate_file_returns_no_errors_for_valid_report(
@@ -189,10 +161,7 @@ def test_inspection_serialization(
 
     assert data["status"] == "completed"
     assert data["overall_direction"] == "improving"
-    assert (
-        data["headline"]
-        == "Pipeline health is improving"
-    )
+    assert data["headline"] == "Pipeline health is improving"
     assert isinstance(
         data["highlighted_metrics"],
         list,

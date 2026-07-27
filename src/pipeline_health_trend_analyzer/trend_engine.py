@@ -30,41 +30,23 @@ class MetricDefinition:
         errors: list[str] = []
 
         if not isinstance(self.metric_name, str):
-            errors.append(
-                "metric_definition.metric_name must be a string"
-            )
+            errors.append("metric_definition.metric_name must be a string")
         elif not self.metric_name.strip():
-            errors.append(
-                "metric_definition.metric_name must not be empty"
-            )
+            errors.append("metric_definition.metric_name must not be empty")
 
         if not callable(self.extractor):
-            errors.append(
-                "metric_definition.extractor must be callable"
-            )
+            errors.append("metric_definition.extractor must be callable")
 
         if not isinstance(self.higher_is_better, bool):
-            errors.append(
-                "metric_definition.higher_is_better "
-                "must be a boolean"
-            )
+            errors.append("metric_definition.higher_is_better must be a boolean")
 
-        if (
-            isinstance(self.stability_tolerance, bool)
-            or not isinstance(
-                self.stability_tolerance,
-                (int, float),
-            )
+        if isinstance(self.stability_tolerance, bool) or not isinstance(
+            self.stability_tolerance,
+            (int, float),
         ):
-            errors.append(
-                "metric_definition.stability_tolerance "
-                "must be numeric"
-            )
+            errors.append("metric_definition.stability_tolerance must be numeric")
         elif self.stability_tolerance < 0:
-            errors.append(
-                "metric_definition.stability_tolerance "
-                "must not be negative"
-            )
+            errors.append("metric_definition.stability_tolerance must not be negative")
 
         return errors
 
@@ -122,10 +104,7 @@ def calculate_linear_slope(
         )
     )
 
-    denominator = sum(
-        (x_value - mean_x) ** 2
-        for x_value in x_values
-    )
+    denominator = sum((x_value - mean_x) ** 2 for x_value in x_values)
 
     if denominator == 0:
         return 0.0
@@ -144,35 +123,25 @@ class TrendEngine:
         ] = DEFAULT_METRIC_DEFINITIONS,
     ) -> None:
         if not isinstance(metric_definitions, tuple):
-            raise TypeError(
-                "metric_definitions must be a tuple"
-            )
+            raise TypeError("metric_definitions must be a tuple")
 
         if not metric_definitions:
-            raise ValueError(
-                "metric_definitions must not be empty"
-            )
+            raise ValueError("metric_definitions must not be empty")
 
         errors: list[str] = []
         metric_names: set[str] = set()
 
         for index, definition in enumerate(metric_definitions):
             if not isinstance(definition, MetricDefinition):
-                errors.append(
-                    f"metric_definitions[{index}] "
-                    "must be a MetricDefinition"
-                )
+                errors.append(f"metric_definitions[{index}] must be a MetricDefinition")
                 continue
 
             for error in definition.validate():
-                errors.append(
-                    f"metric_definitions[{index}].{error}"
-                )
+                errors.append(f"metric_definitions[{index}].{error}")
 
             if definition.metric_name in metric_names:
                 errors.append(
-                    "metric_definitions must not contain "
-                    "duplicate metric names"
+                    "metric_definitions must not contain duplicate metric names"
                 )
 
             metric_names.add(definition.metric_name)
@@ -200,9 +169,7 @@ class TrendEngine:
         normalized_samples = self._normalize_samples(samples)
 
         if not isinstance(definition, MetricDefinition):
-            raise TypeError(
-                "definition must be a MetricDefinition"
-            )
+            raise TypeError("definition must be a MetricDefinition")
 
         definition_errors = definition.validate()
 
@@ -288,9 +255,7 @@ class TrendEngine:
             raise TypeError("sample_count must be an integer")
 
         if sample_count <= 0:
-            raise ValueError(
-                "sample_count must be greater than zero"
-            )
+            raise ValueError("sample_count must be greater than zero")
 
         for name, value in {
             "delta": delta,
@@ -304,14 +269,10 @@ class TrendEngine:
                 raise TypeError(f"{name} must be numeric")
 
         if stability_tolerance < 0:
-            raise ValueError(
-                "stability_tolerance must not be negative"
-            )
+            raise ValueError("stability_tolerance must not be negative")
 
         if not isinstance(higher_is_better, bool):
-            raise TypeError(
-                "higher_is_better must be a boolean"
-            )
+            raise TypeError("higher_is_better must be a boolean")
 
         if sample_count < 2:
             return TrendDirection.INSUFFICIENT_DATA
@@ -334,16 +295,10 @@ class TrendEngine:
 
         if higher_is_better:
             return (
-                TrendDirection.IMPROVING
-                if is_increasing
-                else TrendDirection.DEGRADING
+                TrendDirection.IMPROVING if is_increasing else TrendDirection.DEGRADING
             )
 
-        return (
-            TrendDirection.DEGRADING
-            if is_increasing
-            else TrendDirection.IMPROVING
-        )
+        return TrendDirection.DEGRADING if is_increasing else TrendDirection.IMPROVING
 
     def _normalize_samples(
         self,
@@ -360,27 +315,20 @@ class TrendEngine:
 
         for index, sample in enumerate(normalized_samples):
             if not isinstance(sample, TrendSample):
-                raise TypeError(
-                    f"samples[{index}] must be a TrendSample"
-                )
+                raise TypeError(f"samples[{index}] must be a TrendSample")
 
             errors = sample.validate()
 
             if errors:
                 raise ValueError(
-                    "; ".join(
-                        f"samples[{index}].{error}"
-                        for error in errors
-                    )
+                    "; ".join(f"samples[{index}].{error}" for error in errors)
                 )
 
             if (
                 previous_generated_at is not None
                 and sample.generated_at < previous_generated_at
             ):
-                raise ValueError(
-                    "samples must be ordered chronologically"
-                )
+                raise ValueError("samples must be ordered chronologically")
 
             previous_generated_at = sample.generated_at
 

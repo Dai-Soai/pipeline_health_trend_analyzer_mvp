@@ -91,8 +91,7 @@ def test_metric_definition_rejects_negative_tolerance() -> None:
 
     assert (
         "metric_definition.stability_tolerance "
-        "must not be negative"
-        in definition.validate()
+        "must not be negative" in definition.validate()
     )
 
 
@@ -121,9 +120,7 @@ def test_engine_treats_decreasing_warning_count_as_improving() -> None:
     trends = TrendEngine().analyze(improving_samples())
 
     warning_trend = next(
-        trend
-        for trend in trends
-        if trend.metric_name == "warning_count"
+        trend for trend in trends if trend.metric_name == "warning_count"
     )
 
     assert warning_trend.first_value == 3.0
@@ -155,9 +152,7 @@ def test_engine_treats_increasing_critical_count_as_degrading() -> None:
     trends = TrendEngine().analyze(samples)
 
     critical_trend = next(
-        trend
-        for trend in trends
-        if trend.metric_name == "critical_count"
+        trend for trend in trends if trend.metric_name == "critical_count"
     )
 
     assert critical_trend.delta == 1.0
@@ -186,10 +181,7 @@ def test_engine_classifies_constant_values_as_stable() -> None:
 
     trends = TrendEngine().analyze(samples)
 
-    assert all(
-        trend.direction is TrendDirection.STABLE
-        for trend in trends
-    )
+    assert all(trend.direction is TrendDirection.STABLE for trend in trends)
 
 
 def test_engine_classifies_one_sample_as_insufficient_data() -> None:
@@ -206,20 +198,13 @@ def test_engine_classifies_one_sample_as_insufficient_data() -> None:
 
     trends = TrendEngine().analyze(samples)
 
-    assert all(
-        trend.direction
-        is TrendDirection.INSUFFICIENT_DATA
-        for trend in trends
-    )
+    assert all(trend.direction is TrendDirection.INSUFFICIENT_DATA for trend in trends)
 
 
 def test_default_engine_returns_four_metric_trends() -> None:
     trends = TrendEngine().analyze(improving_samples())
 
-    assert tuple(
-        trend.metric_name
-        for trend in trends
-    ) == (
+    assert tuple(trend.metric_name for trend in trends) == (
         "health_score",
         "warning_count",
         "critical_count",

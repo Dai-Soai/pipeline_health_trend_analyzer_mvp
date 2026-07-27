@@ -22,9 +22,7 @@ def build_metric_trend(
         sample_count=3,
         first_value=first_value,
         current_value=current_value,
-        average_value=(
-            first_value + current_value
-        ) / 2,
+        average_value=(first_value + current_value) / 2,
         minimum_value=min(first_value, current_value),
         maximum_value=max(first_value, current_value),
         delta=delta,
@@ -55,14 +53,10 @@ def test_trend_overview_round_trip() -> None:
             "health_score",
             "critical_count",
         ),
-        recommendation=(
-            "Continue monitoring the current configuration."
-        ),
+        recommendation=("Continue monitoring the current configuration."),
     )
 
-    restored = TrendOverview.from_dict(
-        overview.to_dict()
-    )
+    restored = TrendOverview.from_dict(overview.to_dict())
 
     assert restored == overview
     assert restored.validate() == []
@@ -79,18 +73,9 @@ def test_trend_overview_rejects_empty_fields() -> None:
 
     errors = overview.validate()
 
-    assert (
-        "trend_overview.headline must not be empty"
-        in errors
-    )
-    assert (
-        "trend_overview.message must not be empty"
-        in errors
-    )
-    assert (
-        "trend_overview.recommendation must not be empty"
-        in errors
-    )
+    assert "trend_overview.headline must not be empty" in errors
+    assert "trend_overview.message must not be empty" in errors
+    assert "trend_overview.recommendation must not be empty" in errors
 
 
 def test_builder_creates_improving_overview() -> None:
@@ -117,14 +102,8 @@ def test_builder_creates_improving_overview() -> None:
         metric_trends=trends,
     )
 
-    assert (
-        overview.headline
-        == "Pipeline health is improving"
-    )
-    assert (
-        overview.dominant_direction
-        is TrendDirection.IMPROVING
-    )
+    assert overview.headline == "Pipeline health is improving"
+    assert overview.dominant_direction is TrendDirection.IMPROVING
     assert overview.highlighted_metrics[0] == "health_score"
     assert "persists" in overview.recommendation
 
@@ -153,14 +132,8 @@ def test_builder_creates_degrading_overview() -> None:
         metric_trends=trends,
     )
 
-    assert (
-        overview.headline
-        == "Pipeline health is degrading"
-    )
-    assert (
-        overview.dominant_direction
-        is TrendDirection.DEGRADING
-    )
+    assert overview.headline == "Pipeline health is degrading"
+    assert overview.dominant_direction is TrendDirection.DEGRADING
     assert "Investigate" in overview.recommendation
 
 
@@ -182,14 +155,8 @@ def test_builder_creates_stable_overview() -> None:
         metric_trends=trends,
     )
 
-    assert (
-        overview.headline
-        == "Pipeline health trend is stable"
-    )
-    assert (
-        overview.dominant_direction
-        is TrendDirection.STABLE
-    )
+    assert overview.headline == "Pipeline health trend is stable"
+    assert overview.dominant_direction is TrendDirection.STABLE
 
 
 def test_builder_creates_insufficient_data_overview() -> None:
@@ -211,15 +178,9 @@ def test_builder_creates_insufficient_data_overview() -> None:
         metric_trends=trends,
     )
 
-    assert (
-        overview.headline
-        == "Insufficient health history"
-    )
+    assert overview.headline == "Insufficient health history"
     assert "At least two samples" in overview.message
-    assert (
-        overview.dominant_direction
-        is TrendDirection.INSUFFICIENT_DATA
-    )
+    assert overview.dominant_direction is TrendDirection.INSUFFICIENT_DATA
 
 
 def test_builder_limits_highlighted_metrics() -> None:
@@ -233,9 +194,7 @@ def test_builder_limits_highlighted_metrics() -> None:
         for index in range(5)
     )
 
-    overview = TrendSummaryBuilder(
-        max_highlighted_metrics=2
-    ).build(
+    overview = TrendSummaryBuilder(max_highlighted_metrics=2).build(
         summary=build_summary(
             trends,
             TrendDirection.IMPROVING,
@@ -251,43 +210,29 @@ def test_builder_limits_highlighted_metrics() -> None:
 
 
 def test_analyzer_adds_overview_to_report() -> None:
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            "examples/health_reports",
-            run_id="m6-overview-test",
-            generated_at="2026-07-12T11:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        "examples/health_reports",
+        run_id="m6-overview-test",
+        generated_at="2026-07-12T11:00:00Z",
     )
 
     assert report.overview is not None
     assert report.overview.validate() == []
-    assert (
-        report.overview.headline
-        == "Pipeline health is improving"
-    )
-    assert (
-        report.overview.dominant_direction
-        is TrendDirection.IMPROVING
-    )
+    assert report.overview.headline == "Pipeline health is improving"
+    assert report.overview.dominant_direction is TrendDirection.IMPROVING
     assert len(report.overview.highlighted_metrics) == 4
 
 
 def test_trend_report_round_trip_preserves_overview() -> None:
     from pipeline_health_trend_analyzer import TrendReport
 
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            "examples/health_reports",
-            run_id="m6-round-trip-test",
-            generated_at="2026-07-12T11:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        "examples/health_reports",
+        run_id="m6-round-trip-test",
+        generated_at="2026-07-12T11:00:00Z",
     )
 
-    restored = TrendReport.from_dict(
-        report.to_dict()
-    )
+    restored = TrendReport.from_dict(report.to_dict())
 
     assert restored == report
     assert restored.overview == report.overview

@@ -53,9 +53,7 @@ def valid_health_report(
 
 
 def test_loader_normalizes_dictionary() -> None:
-    report = HealthReportLoader().from_dict(
-        valid_health_report()
-    )
+    report = HealthReportLoader().from_dict(valid_health_report())
 
     assert isinstance(report, LoadedHealthReport)
     assert report.report_version == "1.0"
@@ -78,9 +76,7 @@ def test_loaded_report_normalizes_score() -> None:
 
 
 def test_loaded_report_converts_to_trend_sample() -> None:
-    report = HealthReportLoader().from_dict(
-        valid_health_report()
-    )
+    report = HealthReportLoader().from_dict(valid_health_report())
 
     sample = report.to_trend_sample()
 
@@ -114,9 +110,7 @@ def test_loader_preserves_raw_report() -> None:
 
 def test_loader_rejects_missing_file(tmp_path: Path) -> None:
     with pytest.raises(HealthReportFileNotFoundError):
-        HealthReportLoader().load(
-            tmp_path / "missing.json"
-        )
+        HealthReportLoader().load(tmp_path / "missing.json")
 
 
 def test_loader_rejects_invalid_json(tmp_path: Path) -> None:
@@ -134,15 +128,10 @@ def test_loader_rejects_non_object_json(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(
-        HealthReportValidationError
-    ) as exc_info:
+    with pytest.raises(HealthReportValidationError) as exc_info:
         HealthReportLoader().load(path)
 
-    assert (
-        "health report root must be a JSON object"
-        in exc_info.value.errors
-    )
+    assert "health report root must be a JSON object" in exc_info.value.errors
 
 
 def test_loader_rejects_missing_metadata() -> None:
@@ -150,46 +139,26 @@ def test_loader_rejects_missing_metadata() -> None:
     del data["analyzer_version"]
     del data["run_id"]
 
-    with pytest.raises(
-        HealthReportValidationError
-    ) as exc_info:
+    with pytest.raises(HealthReportValidationError) as exc_info:
         HealthReportLoader().from_dict(data)
 
-    assert (
-        "missing required field: analyzer_version"
-        in exc_info.value.errors
-    )
-    assert (
-        "missing required field: run_id"
-        in exc_info.value.errors
-    )
+    assert "missing required field: analyzer_version" in exc_info.value.errors
+    assert "missing required field: run_id" in exc_info.value.errors
 
 
 def test_loader_rejects_invalid_generated_at() -> None:
-    data = valid_health_report(
-        generated_at="not-a-datetime"
-    )
+    data = valid_health_report(generated_at="not-a-datetime")
 
-    with pytest.raises(
-        HealthReportValidationError
-    ) as exc_info:
+    with pytest.raises(HealthReportValidationError) as exc_info:
         HealthReportLoader().from_dict(data)
 
-    assert (
-        "generated_at must be a valid ISO-8601 datetime"
-        in exc_info.value.errors
-    )
+    assert "generated_at must be a valid ISO-8601 datetime" in exc_info.value.errors
 
 
 def test_load_directory_orders_reports_chronologically() -> None:
-    reports = HealthReportLoader().load_directory(
-        EXAMPLE_DIRECTORY
-    )
+    reports = HealthReportLoader().load_directory(EXAMPLE_DIRECTORY)
 
-    assert tuple(
-        report.run_id
-        for report in reports
-    ) == (
+    assert tuple(report.run_id for report in reports) == (
         "health-run-001",
         "health-run-002",
         "health-run-003",
@@ -202,10 +171,7 @@ def test_to_trend_samples_preserves_chronology() -> None:
 
     samples = loader.to_trend_samples(reports)
 
-    assert tuple(
-        sample.health_score
-        for sample in samples
-    ) == (
+    assert tuple(sample.health_score for sample in samples) == (
         50.0,
         70.0,
         100.0,
@@ -231,9 +197,7 @@ def test_loader_rejects_duplicate_run_ids(
     first_path = tmp_path / "first.json"
     second_path = tmp_path / "second.json"
 
-    data = valid_health_report(
-        run_id="duplicate-run"
-    )
+    data = valid_health_report(run_id="duplicate-run")
 
     first_path.write_text(
         json.dumps(data),
@@ -248,9 +212,7 @@ def test_loader_rejects_duplicate_run_ids(
     )
 
     with pytest.raises(DuplicateHealthReportError):
-        HealthReportLoader().load_many(
-            (first_path, second_path)
-        )
+        HealthReportLoader().load_many((first_path, second_path))
 
 
 def test_load_directory_rejects_empty_directory(

@@ -9,7 +9,6 @@ from pipeline_health_trend_analyzer import (
 from pipeline_health_trend_analyzer.cli import (
     EXIT_ERROR,
     EXIT_SUCCESS,
-    EXIT_TREND_THRESHOLD,
     _format_number,
     build_parser,
     format_report,
@@ -50,13 +49,10 @@ def test_format_number_removes_trailing_zeroes() -> None:
 
 
 def test_format_report_contains_summary() -> None:
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            EXAMPLE_DIRECTORY,
-            run_id="cli-summary-test",
-            generated_at="2026-07-12T12:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        EXAMPLE_DIRECTORY,
+        run_id="cli-summary-test",
+        generated_at="2026-07-12T12:00:00Z",
     )
 
     output = format_report(report)
@@ -70,13 +66,10 @@ def test_format_report_contains_summary() -> None:
 
 
 def test_format_report_can_show_metric_details() -> None:
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            EXAMPLE_DIRECTORY,
-            run_id="cli-metrics-test",
-            generated_at="2026-07-12T12:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        EXAMPLE_DIRECTORY,
+        run_id="cli-metrics-test",
+        generated_at="2026-07-12T12:00:00Z",
     )
 
     output = format_report(
@@ -278,10 +271,7 @@ def test_main_validates_trend_report(
     captured = capsys.readouterr()
 
     assert exit_code == EXIT_SUCCESS
-    assert (
-        captured.out.strip()
-        == "Trend report is valid."
-    )
+    assert captured.out.strip() == "Trend report is valid."
     assert captured.err == ""
 
 
@@ -317,9 +307,6 @@ def test_main_inspects_trend_report(
 
     assert exit_code == EXIT_SUCCESS
     assert "Trend Report Inspection" in captured.out
-    assert (
-        "Overall direction: improving"
-        in captured.out
-    )
+    assert "Overall direction: improving" in captured.out
     assert "Samples: 3" in captured.out
     assert "Metrics: 4" in captured.out

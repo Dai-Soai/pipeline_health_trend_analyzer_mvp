@@ -83,32 +83,26 @@ class LoadedHealthReport:
 
         if isinstance(self.generated_at, str) and self.generated_at.strip():
             try:
-                datetime.fromisoformat(
-                    self.generated_at.replace("Z", "+00:00")
-                )
+                datetime.fromisoformat(self.generated_at.replace("Z", "+00:00"))
             except ValueError:
-                errors.append(
-                    "generated_at must be a valid ISO-8601 datetime"
-                )
+                errors.append("generated_at must be a valid ISO-8601 datetime")
 
-        for name, value in {
+        for score_name, score_value in {
             "health_score": self.health_score,
             "maximum_score": self.maximum_score,
         }.items():
-            if isinstance(value, bool) or not isinstance(
-                value,
+            if isinstance(score_value, bool) or not isinstance(
+                score_value,
                 (int, float),
             ):
-                errors.append(f"{name} must be numeric")
+                errors.append(f"{score_name} must be numeric")
 
         if isinstance(self.maximum_score, (int, float)) and not isinstance(
             self.maximum_score,
             bool,
         ):
             if self.maximum_score <= 0:
-                errors.append(
-                    "maximum_score must be greater than zero"
-                )
+                errors.append("maximum_score must be greater than zero")
 
         if (
             isinstance(self.health_score, (int, float))
@@ -121,9 +115,7 @@ class LoadedHealthReport:
                 errors.append("health_score must not be negative")
 
             if self.health_score > self.maximum_score:
-                errors.append(
-                    "health_score must not exceed maximum_score"
-                )
+                errors.append("health_score must not exceed maximum_score")
 
         count_fields = {
             "warning_count": self.warning_count,
@@ -131,37 +123,29 @@ class LoadedHealthReport:
             "total_findings": self.total_findings,
         }
 
-        for name, value in count_fields.items():
-            if isinstance(value, bool) or not isinstance(value, int):
-                errors.append(f"{name} must be an integer")
-            elif value < 0:
-                errors.append(f"{name} must not be negative")
+        for count_name, count_value in count_fields.items():
+            if isinstance(count_value, bool) or not isinstance(count_value, int):
+                errors.append(f"{count_name} must be an integer")
+            elif count_value < 0:
+                errors.append(f"{count_name} must not be negative")
 
         if all(
             isinstance(value, int) and not isinstance(value, bool)
             for value in count_fields.values()
         ):
-            if (
-                self.warning_count + self.critical_count
-                > self.total_findings
-            ):
+            if self.warning_count + self.critical_count > self.total_findings:
                 errors.append(
-                    "warning_count + critical_count must not exceed "
-                    "total_findings"
+                    "warning_count + critical_count must not exceed total_findings"
                 )
 
         if self.source_path is not None:
             if not isinstance(self.source_path, str):
-                errors.append(
-                    "source_path must be a string or null"
-                )
+                errors.append("source_path must be a string or null")
             elif not self.source_path.strip():
                 errors.append("source_path must not be empty")
 
         if not isinstance(self.source_metadata, dict):
-            errors.append(
-                "source_metadata must be a dictionary"
-            )
+            errors.append("source_metadata must be a dictionary")
 
         if not isinstance(self.raw_report, dict):
             errors.append("raw_report must be a dictionary")
@@ -230,9 +214,7 @@ class HealthReportLoader:
             )
 
         try:
-            raw_data = json.loads(
-                report_path.read_text(encoding="utf-8")
-            )
+            raw_data = json.loads(report_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             raise HealthReportJSONError(
                 f"Invalid JSON in health report {report_path}: "
@@ -267,9 +249,7 @@ class HealthReportLoader:
 
         for field_name in REQUIRED_HEALTH_REPORT_FIELDS:
             if field_name not in raw_report:
-                errors.append(
-                    f"missing required field: {field_name}"
-                )
+                errors.append(f"missing required field: {field_name}")
 
         for field_name in (
             "report_version",
@@ -284,25 +264,17 @@ class HealthReportLoader:
             value = raw_report[field_name]
 
             if not isinstance(value, str):
-                errors.append(
-                    f"{field_name} must be a string"
-                )
+                errors.append(f"{field_name} must be a string")
             elif not value.strip():
-                errors.append(
-                    f"{field_name} must not be empty"
-                )
+                errors.append(f"{field_name} must not be empty")
 
         generated_at = raw_report.get("generated_at")
 
         if isinstance(generated_at, str) and generated_at.strip():
             try:
-                datetime.fromisoformat(
-                    generated_at.replace("Z", "+00:00")
-                )
+                datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
             except ValueError:
-                errors.append(
-                    "generated_at must be a valid ISO-8601 datetime"
-                )
+                errors.append("generated_at must be a valid ISO-8601 datetime")
 
         score_data = raw_report.get("score")
 
@@ -311,18 +283,13 @@ class HealthReportLoader:
 
         summary_data = raw_report.get("summary")
 
-        if (
-            summary_data is not None
-            and not isinstance(summary_data, Mapping)
-        ):
+        if summary_data is not None and not isinstance(summary_data, Mapping):
             errors.append("summary must be a JSON object")
 
         if isinstance(score_data, Mapping):
             for field_name in ("value", "maximum"):
                 if field_name not in score_data:
-                    errors.append(
-                        f"score missing required field: {field_name}"
-                    )
+                    errors.append(f"score missing required field: {field_name}")
                     continue
 
                 value = score_data[field_name]
@@ -331,9 +298,7 @@ class HealthReportLoader:
                     value,
                     (int, float),
                 ):
-                    errors.append(
-                        f"score.{field_name} must be numeric"
-                    )
+                    errors.append(f"score.{field_name} must be numeric")
 
         if isinstance(summary_data, Mapping):
             for field_name in (
@@ -342,23 +307,17 @@ class HealthReportLoader:
                 "total_findings",
             ):
                 if field_name not in summary_data:
-                    errors.append(
-                        f"summary missing required field: {field_name}"
-                    )
+                    errors.append(f"summary missing required field: {field_name}")
                     continue
 
                 value = summary_data[field_name]
 
                 if isinstance(value, bool) or not isinstance(value, int):
-                    errors.append(
-                        f"summary.{field_name} must be an integer"
-                    )
+                    errors.append(f"summary.{field_name} must be an integer")
 
         if source_path is not None:
             if not isinstance(source_path, str):
-                errors.append(
-                    "source_path must be a string or null"
-                )
+                errors.append("source_path must be a string or null")
             elif not source_path.strip():
                 errors.append("source_path must not be empty")
 
@@ -374,9 +333,7 @@ class HealthReportLoader:
         )
 
         if not isinstance(source_metadata, Mapping):
-            raise HealthReportValidationError(
-                ["source_metadata must be a JSON object"]
-            )
+            raise HealthReportValidationError(["source_metadata must be a JSON object"])
 
         report = LoadedHealthReport(
             report_version=raw_report["report_version"],
@@ -397,9 +354,7 @@ class HealthReportLoader:
         validation_errors = report.validate()
 
         if validation_errors:
-            raise HealthReportValidationError(
-                validation_errors
-            )
+            raise HealthReportValidationError(validation_errors)
 
         return report
 
@@ -409,10 +364,7 @@ class HealthReportLoader:
     ) -> tuple[LoadedHealthReport, ...]:
         """Load and chronologically order multiple reports."""
 
-        reports = tuple(
-            self.load(path)
-            for path in paths
-        )
+        reports = tuple(self.load(path) for path in paths)
 
         return self._normalize_collection(reports)
 
@@ -429,32 +381,23 @@ class HealthReportLoader:
 
         if not directory_path.exists():
             raise HealthReportFileNotFoundError(
-                f"Health report directory not found: "
-                f"{directory_path}"
+                f"Health report directory not found: {directory_path}"
             )
 
         if not directory_path.is_dir():
             raise HealthReportLoadError(
-                f"Health report path is not a directory: "
-                f"{directory_path}"
+                f"Health report path is not a directory: {directory_path}"
             )
 
         candidates = (
-            directory_path.rglob(pattern)
-            if recursive
-            else directory_path.glob(pattern)
+            directory_path.rglob(pattern) if recursive else directory_path.glob(pattern)
         )
 
-        paths = sorted(
-            path
-            for path in candidates
-            if path.is_file()
-        )
+        paths = sorted(path for path in candidates if path.is_file())
 
         if not paths:
             raise HealthReportFileNotFoundError(
-                f"No health reports matched '{pattern}' in "
-                f"{directory_path}"
+                f"No health reports matched '{pattern}' in {directory_path}"
             )
 
         return self.load_many(paths)
@@ -465,14 +408,9 @@ class HealthReportLoader:
     ) -> tuple[TrendSample, ...]:
         """Convert loaded reports into chronological trend samples."""
 
-        normalized_reports = self._normalize_collection(
-            tuple(reports)
-        )
+        normalized_reports = self._normalize_collection(tuple(reports))
 
-        return tuple(
-            report.to_trend_sample()
-            for report in normalized_reports
-        )
+        return tuple(report.to_trend_sample() for report in normalized_reports)
 
     def _normalize_collection(
         self,
@@ -484,14 +422,11 @@ class HealthReportLoader:
 
         for report in reports:
             if not isinstance(report, LoadedHealthReport):
-                raise TypeError(
-                    "reports must contain LoadedHealthReport objects"
-                )
+                raise TypeError("reports must contain LoadedHealthReport objects")
 
             if report.run_id in seen_run_ids:
                 raise DuplicateHealthReportError(
-                    "Duplicate health report run_id: "
-                    f"{report.run_id}"
+                    f"Duplicate health report run_id: {report.run_id}"
                 )
 
             seen_run_ids.add(report.run_id)

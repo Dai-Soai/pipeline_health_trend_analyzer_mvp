@@ -44,38 +44,26 @@ class TrendSample:
             if not isinstance(value, str):
                 errors.append(f"trend_sample.{name} must be a string")
             elif not value.strip():
-                errors.append(
-                    f"trend_sample.{name} must not be empty"
-                )
+                errors.append(f"trend_sample.{name} must not be empty")
 
         if isinstance(self.generated_at, str) and self.generated_at.strip():
             try:
-                datetime.fromisoformat(
-                    self.generated_at.replace("Z", "+00:00")
-                )
+                datetime.fromisoformat(self.generated_at.replace("Z", "+00:00"))
             except ValueError:
                 errors.append(
-                    "trend_sample.generated_at must be a valid "
-                    "ISO-8601 datetime"
+                    "trend_sample.generated_at must be a valid ISO-8601 datetime"
                 )
 
-        if (
-            isinstance(self.health_score, bool)
-            or not isinstance(self.health_score, (int, float))
+        if isinstance(self.health_score, bool) or not isinstance(
+            self.health_score, (int, float)
         ):
-            errors.append(
-                "trend_sample.health_score must be numeric"
-            )
+            errors.append("trend_sample.health_score must be numeric")
         else:
             if self.health_score < 0:
-                errors.append(
-                    "trend_sample.health_score must not be negative"
-                )
+                errors.append("trend_sample.health_score must not be negative")
 
             if self.health_score > 100:
-                errors.append(
-                    "trend_sample.health_score must not exceed 100"
-                )
+                errors.append("trend_sample.health_score must not exceed 100")
 
         count_fields = {
             "warning_count": self.warning_count,
@@ -83,24 +71,17 @@ class TrendSample:
             "total_findings": self.total_findings,
         }
 
-        for name, value in count_fields.items():
-            if isinstance(value, bool) or not isinstance(value, int):
-                errors.append(
-                    f"trend_sample.{name} must be an integer"
-                )
-            elif value < 0:
-                errors.append(
-                    f"trend_sample.{name} must not be negative"
-                )
+        for count_name, count_value in count_fields.items():
+            if isinstance(count_value, bool) or not isinstance(count_value, int):
+                errors.append(f"trend_sample.{count_name} must be an integer")
+            elif count_value < 0:
+                errors.append(f"trend_sample.{count_name} must not be negative")
 
         if all(
             isinstance(value, int) and not isinstance(value, bool)
             for value in count_fields.values()
         ):
-            if (
-                self.warning_count + self.critical_count
-                > self.total_findings
-            ):
+            if self.warning_count + self.critical_count > self.total_findings:
                 errors.append(
                     "trend_sample.warning_count + critical_count "
                     "must not exceed total_findings"
@@ -108,18 +89,12 @@ class TrendSample:
 
         if self.source_path is not None:
             if not isinstance(self.source_path, str):
-                errors.append(
-                    "trend_sample.source_path must be a string or null"
-                )
+                errors.append("trend_sample.source_path must be a string or null")
             elif not self.source_path.strip():
-                errors.append(
-                    "trend_sample.source_path must not be empty"
-                )
+                errors.append("trend_sample.source_path must not be empty")
 
         if not isinstance(self.metadata, dict):
-            errors.append(
-                "trend_sample.metadata must be a dictionary"
-            )
+            errors.append("trend_sample.metadata must be a dictionary")
 
         return errors
 
@@ -179,25 +154,16 @@ class MetricTrend:
         errors: list[str] = []
 
         if not isinstance(self.metric_name, str):
-            errors.append(
-                "metric_trend.metric_name must be a string"
-            )
+            errors.append("metric_trend.metric_name must be a string")
         elif not self.metric_name.strip():
-            errors.append(
-                "metric_trend.metric_name must not be empty"
-            )
+            errors.append("metric_trend.metric_name must not be empty")
 
-        if (
-            isinstance(self.sample_count, bool)
-            or not isinstance(self.sample_count, int)
+        if isinstance(self.sample_count, bool) or not isinstance(
+            self.sample_count, int
         ):
-            errors.append(
-                "metric_trend.sample_count must be an integer"
-            )
+            errors.append("metric_trend.sample_count must be an integer")
         elif self.sample_count <= 0:
-            errors.append(
-                "metric_trend.sample_count must be greater than zero"
-            )
+            errors.append("metric_trend.sample_count must be greater than zero")
 
         numeric_fields = {
             "first_value": self.first_value,
@@ -214,46 +180,30 @@ class MetricTrend:
                 value,
                 (int, float),
             ):
-                errors.append(
-                    f"metric_trend.{name} must be numeric"
-                )
+                errors.append(f"metric_trend.{name} must be numeric")
 
         if all(
-            isinstance(value, (int, float))
-            and not isinstance(value, bool)
+            isinstance(value, (int, float)) and not isinstance(value, bool)
             for value in numeric_fields.values()
         ):
             if self.minimum_value > self.maximum_value:
                 errors.append(
-                    "metric_trend.minimum_value must not exceed "
-                    "maximum_value"
+                    "metric_trend.minimum_value must not exceed maximum_value"
                 )
 
-            if not (
-                self.minimum_value
-                <= self.first_value
-                <= self.maximum_value
-            ):
+            if not (self.minimum_value <= self.first_value <= self.maximum_value):
                 errors.append(
                     "metric_trend.first_value must be within "
                     "minimum_value and maximum_value"
                 )
 
-            if not (
-                self.minimum_value
-                <= self.current_value
-                <= self.maximum_value
-            ):
+            if not (self.minimum_value <= self.current_value <= self.maximum_value):
                 errors.append(
                     "metric_trend.current_value must be within "
                     "minimum_value and maximum_value"
                 )
 
-            if not (
-                self.minimum_value
-                <= self.average_value
-                <= self.maximum_value
-            ):
+            if not (self.minimum_value <= self.average_value <= self.maximum_value):
                 errors.append(
                     "metric_trend.average_value must be within "
                     "minimum_value and maximum_value"
@@ -266,14 +216,11 @@ class MetricTrend:
 
             if round(float(self.delta), 6) != expected_delta:
                 errors.append(
-                    "metric_trend.delta must equal "
-                    "current_value - first_value"
+                    "metric_trend.delta must equal current_value - first_value"
                 )
 
         if not isinstance(self.direction, TrendDirection):
-            errors.append(
-                "metric_trend.direction must be a TrendDirection"
-            )
+            errors.append("metric_trend.direction must be a TrendDirection")
 
         return errors
 
@@ -337,30 +284,21 @@ class TrendSummary:
             "improving_count": self.improving_count,
             "stable_count": self.stable_count,
             "degrading_count": self.degrading_count,
-            "insufficient_data_count": (
-                self.insufficient_data_count
-            ),
+            "insufficient_data_count": (self.insufficient_data_count),
         }
 
         for name, value in count_fields.items():
             if isinstance(value, bool) or not isinstance(value, int):
-                errors.append(
-                    f"trend_summary.{name} must be an integer"
-                )
+                errors.append(f"trend_summary.{name} must be an integer")
             elif value < 0:
-                errors.append(
-                    f"trend_summary.{name} must not be negative"
-                )
+                errors.append(f"trend_summary.{name} must not be negative")
 
         if isinstance(self.sample_count, int) and not isinstance(
             self.sample_count,
             bool,
         ):
             if self.sample_count <= 0:
-                errors.append(
-                    "trend_summary.sample_count must be "
-                    "greater than zero"
-                )
+                errors.append("trend_summary.sample_count must be greater than zero")
 
         if all(
             isinstance(value, int) and not isinstance(value, bool)
@@ -383,10 +321,7 @@ class TrendSummary:
             self.overall_direction,
             TrendDirection,
         ):
-            errors.append(
-                "trend_summary.overall_direction must be "
-                "a TrendDirection"
-            )
+            errors.append("trend_summary.overall_direction must be a TrendDirection")
 
         return errors
 
@@ -399,9 +334,7 @@ class TrendSummary:
             "improving_count": self.improving_count,
             "stable_count": self.stable_count,
             "degrading_count": self.degrading_count,
-            "insufficient_data_count": (
-                self.insufficient_data_count
-            ),
+            "insufficient_data_count": (self.insufficient_data_count),
             "overall_direction": self.overall_direction.value,
         }
 
@@ -425,16 +358,14 @@ class TrendSummary:
                 for trend in normalized_trends
             ),
             stable_count=sum(
-                trend.direction is TrendDirection.STABLE
-                for trend in normalized_trends
+                trend.direction is TrendDirection.STABLE for trend in normalized_trends
             ),
             degrading_count=sum(
                 trend.direction is TrendDirection.DEGRADING
                 for trend in normalized_trends
             ),
             insufficient_data_count=sum(
-                trend.direction
-                is TrendDirection.INSUFFICIENT_DATA
+                trend.direction is TrendDirection.INSUFFICIENT_DATA
                 for trend in normalized_trends
             ),
             overall_direction=overall_direction,
@@ -453,14 +384,9 @@ class TrendSummary:
             improving_count=data["improving_count"],
             stable_count=data["stable_count"],
             degrading_count=data["degrading_count"],
-            insufficient_data_count=(
-                data["insufficient_data_count"]
-            ),
-            overall_direction=TrendDirection(
-                data["overall_direction"]
-            ),
+            insufficient_data_count=(data["insufficient_data_count"]),
+            overall_direction=TrendDirection(data["overall_direction"]),
         )
-
 
 
 @dataclass(frozen=True, slots=True)
@@ -484,51 +410,36 @@ class TrendOverview:
             "recommendation": self.recommendation,
         }.items():
             if not isinstance(value, str):
-                errors.append(
-                    f"trend_overview.{name} must be a string"
-                )
+                errors.append(f"trend_overview.{name} must be a string")
             elif not value.strip():
-                errors.append(
-                    f"trend_overview.{name} must not be empty"
-                )
+                errors.append(f"trend_overview.{name} must not be empty")
 
         if not isinstance(
             self.dominant_direction,
             TrendDirection,
         ):
-            errors.append(
-                "trend_overview.dominant_direction must be "
-                "a TrendDirection"
-            )
+            errors.append("trend_overview.dominant_direction must be a TrendDirection")
 
         if not isinstance(self.highlighted_metrics, tuple):
-            errors.append(
-                "trend_overview.highlighted_metrics "
-                "must be a tuple"
-            )
+            errors.append("trend_overview.highlighted_metrics must be a tuple")
         else:
             seen: set[str] = set()
 
-            for index, metric_name in enumerate(
-                self.highlighted_metrics
-            ):
+            for index, metric_name in enumerate(self.highlighted_metrics):
                 if not isinstance(metric_name, str):
                     errors.append(
-                        "trend_overview.highlighted_metrics"
-                        f"[{index}] must be a string"
+                        f"trend_overview.highlighted_metrics[{index}] must be a string"
                     )
                     continue
 
                 if not metric_name.strip():
                     errors.append(
-                        "trend_overview.highlighted_metrics"
-                        f"[{index}] must not be empty"
+                        f"trend_overview.highlighted_metrics[{index}] must not be empty"
                     )
 
                 if metric_name in seen:
                     errors.append(
-                        "trend_overview.highlighted_metrics "
-                        "must not contain duplicates"
+                        "trend_overview.highlighted_metrics must not contain duplicates"
                     )
 
                 seen.add(metric_name)
@@ -541,12 +452,8 @@ class TrendOverview:
         return {
             "headline": self.headline,
             "message": self.message,
-            "dominant_direction": (
-                self.dominant_direction.value
-            ),
-            "highlighted_metrics": list(
-                self.highlighted_metrics
-            ),
+            "dominant_direction": (self.dominant_direction.value),
+            "highlighted_metrics": list(self.highlighted_metrics),
             "recommendation": self.recommendation,
         }
 
@@ -560,12 +467,8 @@ class TrendOverview:
         return cls(
             headline=data["headline"],
             message=data["message"],
-            dominant_direction=TrendDirection(
-                data["dominant_direction"]
-            ),
-            highlighted_metrics=tuple(
-                data.get("highlighted_metrics", [])
-            ),
+            dominant_direction=TrendDirection(data["dominant_direction"]),
+            highlighted_metrics=tuple(data.get("highlighted_metrics", [])),
             recommendation=data["recommendation"],
         )
 
@@ -604,18 +507,12 @@ class TrendReport:
 
         if isinstance(self.generated_at, str) and self.generated_at.strip():
             try:
-                datetime.fromisoformat(
-                    self.generated_at.replace("Z", "+00:00")
-                )
+                datetime.fromisoformat(self.generated_at.replace("Z", "+00:00"))
             except ValueError:
-                errors.append(
-                    "generated_at must be a valid ISO-8601 datetime"
-                )
+                errors.append("generated_at must be a valid ISO-8601 datetime")
 
         if not isinstance(self.summary, TrendSummary):
-            errors.append(
-                "summary must be a TrendSummary"
-            )
+            errors.append("summary must be a TrendSummary")
         else:
             errors.extend(self.summary.validate())
 
@@ -624,9 +521,7 @@ class TrendReport:
                 self.overview,
                 TrendOverview,
             ):
-                errors.append(
-                    "overview must be a TrendOverview or null"
-                )
+                errors.append("overview must be a TrendOverview or null")
             else:
                 errors.extend(self.overview.validate())
 
@@ -637,9 +532,7 @@ class TrendReport:
 
             for index, sample in enumerate(self.samples):
                 if not isinstance(sample, TrendSample):
-                    errors.append(
-                        f"samples[{index}] must be a TrendSample"
-                    )
+                    errors.append(f"samples[{index}] must be a TrendSample")
                     continue
 
                 for error in sample.validate():
@@ -656,36 +549,26 @@ class TrendReport:
                     previous_timestamp is not None
                     and current_timestamp < previous_timestamp
                 ):
-                    errors.append(
-                        "samples must be ordered chronologically"
-                    )
+                    errors.append("samples must be ordered chronologically")
 
                 previous_timestamp = current_timestamp
 
         if not isinstance(self.metric_trends, tuple):
-            errors.append(
-                "metric_trends must be a tuple"
-            )
+            errors.append("metric_trends must be a tuple")
         else:
             metric_names: set[str] = set()
 
             for index, trend in enumerate(self.metric_trends):
                 if not isinstance(trend, MetricTrend):
-                    errors.append(
-                        f"metric_trends[{index}] "
-                        "must be a MetricTrend"
-                    )
+                    errors.append(f"metric_trends[{index}] must be a MetricTrend")
                     continue
 
                 for error in trend.validate():
-                    errors.append(
-                        f"metric_trends[{index}].{error}"
-                    )
+                    errors.append(f"metric_trends[{index}].{error}")
 
                 if trend.metric_name in metric_names:
                     errors.append(
-                        "metric_trends must not contain duplicate "
-                        "metric names"
+                        "metric_trends must not contain duplicate metric names"
                     )
 
                 metric_names.add(trend.metric_name)
@@ -695,23 +578,17 @@ class TrendReport:
             and isinstance(self.samples, tuple)
             and self.summary.sample_count != len(self.samples)
         ):
-            errors.append(
-                "summary.sample_count must match samples length"
-            )
+            errors.append("summary.sample_count must match samples length")
 
         if (
             isinstance(self.summary, TrendSummary)
             and isinstance(self.metric_trends, tuple)
             and self.summary.metric_count != len(self.metric_trends)
         ):
-            errors.append(
-                "summary.metric_count must match metric_trends length"
-            )
+            errors.append("summary.metric_count must match metric_trends length")
 
         if not isinstance(self.source_metadata, dict):
-            errors.append(
-                "source_metadata must be a dictionary"
-            )
+            errors.append("source_metadata must be a dictionary")
 
         return errors
 
@@ -726,18 +603,10 @@ class TrendReport:
             "status": self.status,
             "summary": self.summary.to_dict(),
             "overview": (
-                self.overview.to_dict()
-                if self.overview is not None
-                else None
+                self.overview.to_dict() if self.overview is not None else None
             ),
-            "samples": [
-                sample.to_dict()
-                for sample in self.samples
-            ],
-            "metric_trends": [
-                trend.to_dict()
-                for trend in self.metric_trends
-            ],
+            "samples": [sample.to_dict() for sample in self.samples],
+            "metric_trends": [trend.to_dict() for trend in self.metric_trends],
             "source_metadata": dict(self.source_metadata),
         }
 
@@ -761,16 +630,12 @@ class TrendReport:
                 else None
             ),
             samples=tuple(
-                TrendSample.from_dict(item)
-                for item in data.get("samples", [])
+                TrendSample.from_dict(item) for item in data.get("samples", [])
             ),
             metric_trends=tuple(
-                MetricTrend.from_dict(item)
-                for item in data.get("metric_trends", [])
+                MetricTrend.from_dict(item) for item in data.get("metric_trends", [])
             ),
-            source_metadata=dict(
-                data.get("source_metadata", {})
-            ),
+            source_metadata=dict(data.get("source_metadata", {})),
         )
 
 

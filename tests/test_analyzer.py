@@ -85,10 +85,7 @@ def test_overall_direction_is_improving() -> None:
         ),
     )
 
-    direction = (
-        PipelineHealthTrendAnalyzer()
-        .determine_overall_direction(trends)
-    )
+    direction = PipelineHealthTrendAnalyzer().determine_overall_direction(trends)
 
     assert direction is TrendDirection.IMPROVING
 
@@ -109,10 +106,7 @@ def test_overall_direction_is_degrading() -> None:
         ),
     )
 
-    direction = (
-        PipelineHealthTrendAnalyzer()
-        .determine_overall_direction(trends)
-    )
+    direction = PipelineHealthTrendAnalyzer().determine_overall_direction(trends)
 
     assert direction is TrendDirection.DEGRADING
 
@@ -129,10 +123,7 @@ def test_overall_direction_is_stable_when_counts_tie() -> None:
         ),
     )
 
-    direction = (
-        PipelineHealthTrendAnalyzer()
-        .determine_overall_direction(trends)
-    )
+    direction = PipelineHealthTrendAnalyzer().determine_overall_direction(trends)
 
     assert direction is TrendDirection.STABLE
 
@@ -149,10 +140,7 @@ def test_overall_direction_is_insufficient_data() -> None:
         ),
     )
 
-    direction = (
-        PipelineHealthTrendAnalyzer()
-        .determine_overall_direction(trends)
-    )
+    direction = PipelineHealthTrendAnalyzer().determine_overall_direction(trends)
 
     assert direction is TrendDirection.INSUFFICIENT_DATA
 
@@ -193,10 +181,7 @@ def test_analyze_samples_builds_valid_report() -> None:
     assert report.status == "completed"
     assert report.summary.sample_count == 3
     assert report.summary.metric_count == 4
-    assert (
-        report.summary.overall_direction
-        is TrendDirection.IMPROVING
-    )
+    assert report.summary.overall_direction is TrendDirection.IMPROVING
 
 
 def test_analyze_one_sample_marks_insufficient_data() -> None:
@@ -215,21 +200,15 @@ def test_analyze_one_sample_marks_insufficient_data() -> None:
     )
 
     assert report.status == "insufficient_data"
-    assert (
-        report.summary.overall_direction
-        is TrendDirection.INSUFFICIENT_DATA
-    )
+    assert report.summary.overall_direction is TrendDirection.INSUFFICIENT_DATA
     assert report.summary.insufficient_data_count == 4
 
 
 def test_analyze_directory_builds_improving_report() -> None:
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            EXAMPLE_DIRECTORY,
-            run_id="trend-directory-test",
-            generated_at="2026-07-12T10:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        EXAMPLE_DIRECTORY,
+        run_id="trend-directory-test",
+        generated_at="2026-07-12T10:00:00Z",
     )
 
     assert report.validate() == []
@@ -237,20 +216,14 @@ def test_analyze_directory_builds_improving_report() -> None:
     assert report.status == "completed"
     assert len(report.samples) == 3
     assert len(report.metric_trends) == 4
-    assert (
-        report.summary.overall_direction
-        is TrendDirection.IMPROVING
-    )
+    assert report.summary.overall_direction is TrendDirection.IMPROVING
 
 
 def test_analyze_directory_preserves_source_metadata() -> None:
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            EXAMPLE_DIRECTORY,
-            run_id="trend-metadata-test",
-            generated_at="2026-07-12T10:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        EXAMPLE_DIRECTORY,
+        run_id="trend-metadata-test",
+        generated_at="2026-07-12T10:00:00Z",
     )
 
     metadata = report.source_metadata
@@ -277,19 +250,13 @@ def test_analyze_files_accepts_unsorted_paths() -> None:
 
     assert report.samples[0].run_id == "health-run-001"
     assert report.samples[-1].run_id == "health-run-003"
-    assert (
-        report.summary.overall_direction
-        is TrendDirection.IMPROVING
-    )
+    assert report.summary.overall_direction is TrendDirection.IMPROVING
 
 
 def test_generated_run_id_has_trend_prefix() -> None:
-    report = (
-        PipelineHealthTrendAnalyzer()
-        .analyze_directory(
-            EXAMPLE_DIRECTORY,
-            generated_at="2026-07-12T10:00:00Z",
-        )
+    report = PipelineHealthTrendAnalyzer().analyze_directory(
+        EXAMPLE_DIRECTORY,
+        generated_at="2026-07-12T10:00:00Z",
     )
 
     assert report.run_id.startswith("trend-")

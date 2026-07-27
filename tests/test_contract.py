@@ -45,10 +45,7 @@ def test_trend_direction_values() -> None:
     assert TrendDirection.IMPROVING.value == "improving"
     assert TrendDirection.STABLE.value == "stable"
     assert TrendDirection.DEGRADING.value == "degrading"
-    assert (
-        TrendDirection.INSUFFICIENT_DATA.value
-        == "insufficient_data"
-    )
+    assert TrendDirection.INSUFFICIENT_DATA.value == "insufficient_data"
 
 
 def test_trend_sample_round_trip() -> None:
@@ -63,10 +60,7 @@ def test_trend_sample_round_trip() -> None:
 def test_trend_sample_rejects_invalid_score() -> None:
     sample = build_sample(health_score=101.0)
 
-    assert (
-        "trend_sample.health_score must not exceed 100"
-        in sample.validate()
-    )
+    assert "trend_sample.health_score must not exceed 100" in sample.validate()
 
 
 def test_trend_sample_rejects_inconsistent_counts() -> None:
@@ -82,8 +76,7 @@ def test_trend_sample_rejects_inconsistent_counts() -> None:
 
     assert (
         "trend_sample.warning_count + critical_count "
-        "must not exceed total_findings"
-        in sample.validate()
+        "must not exceed total_findings" in sample.validate()
     )
 
 
@@ -112,8 +105,7 @@ def test_metric_trend_rejects_invalid_delta() -> None:
 
     assert (
         "metric_trend.delta must equal "
-        "current_value - first_value"
-        in metric_trend.validate()
+        "current_value - first_value" in metric_trend.validate()
     )
 
 
@@ -173,8 +165,7 @@ def test_trend_summary_rejects_count_mismatch() -> None:
 
     assert (
         "trend_summary.metric_count must equal the sum "
-        "of all direction counts"
-        in summary.validate()
+        "of all direction counts" in summary.validate()
     )
 
 
@@ -249,10 +240,7 @@ def test_trend_report_requires_chronological_samples() -> None:
         metric_trends=metric_trends,
     )
 
-    assert (
-        "samples must be ordered chronologically"
-        in report.validate()
-    )
+    assert "samples must be ordered chronologically" in report.validate()
 
 
 def test_trend_report_detects_summary_sample_mismatch() -> None:
@@ -274,10 +262,7 @@ def test_trend_report_detects_summary_sample_mismatch() -> None:
         metric_trends=metric_trends,
     )
 
-    assert (
-        "summary.sample_count must match samples length"
-        in report.validate()
-    )
+    assert "summary.sample_count must match samples length" in report.validate()
 
 
 def test_trend_report_detects_duplicate_metric_names() -> None:
@@ -302,7 +287,4 @@ def test_trend_report_detects_duplicate_metric_names() -> None:
         metric_trends=metric_trends,
     )
 
-    assert (
-        "metric_trends must not contain duplicate metric names"
-        in report.validate()
-    )
+    assert "metric_trends must not contain duplicate metric names" in report.validate()

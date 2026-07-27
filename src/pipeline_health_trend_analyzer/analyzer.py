@@ -40,9 +40,7 @@ class PipelineHealthTrendAnalyzer:
     ) -> None:
         self._loader = loader or HealthReportLoader()
         self._trend_engine = trend_engine or TrendEngine()
-        self._summary_builder = (
-            summary_builder or TrendSummaryBuilder()
-        )
+        self._summary_builder = summary_builder or TrendSummaryBuilder()
         self._report_version = report_version
         self._analyzer_version = analyzer_version
 
@@ -97,27 +95,20 @@ class PipelineHealthTrendAnalyzer:
 
         for index, trend in enumerate(normalized_trends):
             if not isinstance(trend, MetricTrend):
-                raise TypeError(
-                    f"metric_trends[{index}] must be a MetricTrend"
-                )
+                raise TypeError(f"metric_trends[{index}] must be a MetricTrend")
 
             errors = trend.validate()
 
             if errors:
                 raise ValueError(
-                    "; ".join(
-                        f"metric_trends[{index}].{error}"
-                        for error in errors
-                    )
+                    "; ".join(f"metric_trends[{index}].{error}" for error in errors)
                 )
 
         improving_count = sum(
-            trend.direction is TrendDirection.IMPROVING
-            for trend in normalized_trends
+            trend.direction is TrendDirection.IMPROVING for trend in normalized_trends
         )
         degrading_count = sum(
-            trend.direction is TrendDirection.DEGRADING
-            for trend in normalized_trends
+            trend.direction is TrendDirection.DEGRADING for trend in normalized_trends
         )
         insufficient_count = sum(
             trend.direction is TrendDirection.INSUFFICIENT_DATA
@@ -147,13 +138,9 @@ class PipelineHealthTrendAnalyzer:
 
         normalized_samples = tuple(samples)
 
-        metric_trends = self._trend_engine.analyze(
-            normalized_samples
-        )
+        metric_trends = self._trend_engine.analyze(normalized_samples)
 
-        overall_direction = self.determine_overall_direction(
-            metric_trends
-        )
+        overall_direction = self.determine_overall_direction(metric_trends)
 
         summary = TrendSummary.from_metric_trends(
             sample_count=len(normalized_samples),
@@ -163,27 +150,19 @@ class PipelineHealthTrendAnalyzer:
 
         report_status = (
             "insufficient_data"
-            if overall_direction
-            is TrendDirection.INSUFFICIENT_DATA
+            if overall_direction is TrendDirection.INSUFFICIENT_DATA
             else "completed"
         )
 
-        normalized_run_id = run_id or (
-            f"trend-{uuid4().hex}"
-        )
+        normalized_run_id = run_id or (f"trend-{uuid4().hex}")
 
-        normalized_generated_at = (
-            generated_at
-            or datetime.now(timezone.utc)
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
+        normalized_generated_at = generated_at or datetime.now(
+            timezone.utc
+        ).isoformat().replace("+00:00", "Z")
 
         metadata: dict[str, object] = {
             "source_report_count": len(normalized_samples),
-            "metric_definition_count": len(
-                self._trend_engine.metric_definitions
-            ),
+            "metric_definition_count": len(self._trend_engine.metric_definitions),
         }
 
         metadata.update(source_metadata or {})
@@ -224,9 +203,7 @@ class PipelineHealthTrendAnalyzer:
 
         normalized_reports = tuple(reports)
 
-        samples = self._loader.to_trend_samples(
-            normalized_reports
-        )
+        samples = self._loader.to_trend_samples(normalized_reports)
 
         source_paths = tuple(
             report.source_path
@@ -235,17 +212,11 @@ class PipelineHealthTrendAnalyzer:
         )
 
         analyzer_versions = sorted(
-            {
-                report.analyzer_version
-                for report in normalized_reports
-            }
+            {report.analyzer_version for report in normalized_reports}
         )
 
         report_versions = sorted(
-            {
-                report.report_version
-                for report in normalized_reports
-            }
+            {report.report_version for report in normalized_reports}
         )
 
         return self.analyze_samples(
